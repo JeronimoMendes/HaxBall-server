@@ -2,10 +2,13 @@ import RoomObject from 'haxball.js'
 import PlayerObject from 'haxball.js'
 import Player from './Player'
 import { loadMap, drawPlayersOnTeams } from './utils'
+import { colors } from './style'
 
 class Room {
     state: RoomState;
     haxRoom: RoomObject;
+    players: Player[] = [];
+    lastKicker: Player | null = null;
 
     constructor(haxRoom: RoomObject) {
         this.haxRoom = haxRoom;
@@ -16,11 +19,13 @@ class Room {
 
         this.haxRoom.onPlayerJoin = (player: PlayerObject) => {
             let newPlayer = new Player(player, this.haxRoom);
+            this.players.push(newPlayer);
             this.onPlayerJoin(newPlayer);
         }
 
         this.haxRoom.onPlayerLeave = (player: PlayerObject) => {
             let oldPlayer: Player = new Player(player, this.haxRoom);
+            this.players = this.players.filter((player) => player.id != oldPlayer.id);
             this.onPlayerLeave(oldPlayer);
         }
 
@@ -33,12 +38,27 @@ class Room {
 
             const redWon = score.red > score.blue;
             const winningTeam = redWon ? "Red" : "Blue";
-            const msgColor = redWon ? 0xFF0000 : 0x0000FF;
+            const msgColor = redWon ? colors.red : colors.blue;
             this.haxRoom.sendAnnouncement(winningTeam + " won! " + + score.red + " : " + score.blue, undefined, msgColor, "bold", 2);
         }
 
         this.haxRoom.onRoomLink = (link) => {
             console.log("Room link: " + link);
+        }
+
+        this.haxRoom.onPlayerBallKick = (haxPlayer) => {
+            const player = this.getPlayerById(haxPlayer.id);
+            if (!player) return;
+
+            this.onPlayerKick(player);
+        }
+
+        this.haxRoom.onTeamGoal = (team) => {
+            const teamColor = (team == 1) ? colors.red : colors.blue;
+
+            if (this.lastKicker == null) return;
+            this.haxRoom.sendAnnouncement(this.lastKicker.name + " scored!", undefined, teamColor, "bold", 2);
+            this.onTeamGoal(team);
         }
     }
 
@@ -52,6 +72,20 @@ class Room {
         this.state.onPlayerLeave();
     }
 
+    onPlayerKick(player: Player): void {
+        this.lastKicker = player;
+    }
+
+    onTeamGoal(team: number): void {
+        if (this.lastKicker == null) return;
+
+        if (this.lastKicker.team == team) {
+            this.lastKicker.goals += 1;
+        } else {
+            this.lastKicker.ownGoals += 1;
+        }
+    }
+
     startGame(): void {
         console.log("Starting game...")
         this.shuffleTeams();
@@ -62,6 +96,10 @@ class Room {
         console.log("Shuffling teams...")
         const playersList = this.haxRoom.getPlayerList();
         drawPlayersOnTeams(this.haxRoom, playersList);
+    }
+
+    getPlayerById(id: number): Player | undefined {
+        return this.players.find((player) => player.id == id);
     }
 }
 
