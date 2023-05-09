@@ -9,6 +9,7 @@ class Room {
     haxRoom: RoomObject;
     players: Player[] = [];
     lastKicker: Player | null = null;
+    winningTeam: Player[] = [];
 
     constructor(haxRoom: RoomObject) {
         this.haxRoom = haxRoom;
@@ -86,6 +87,7 @@ class Room {
         }
     }
 
+
     startGame(): void {
         console.log("Starting game...")
         this.shuffleTeams();
@@ -94,8 +96,11 @@ class Room {
 
     shuffleTeams(): void {
         console.log("Shuffling teams...")
-        const playersList = this.haxRoom.getPlayerList();
-        drawPlayersOnTeams(this.haxRoom, playersList);
+
+        // Remove players that are not in the room anymore from the winning team
+        this.winningTeam = this.winningTeam.filter((player) => this.players.includes(player));
+
+        drawPlayersOnTeams(this.haxRoom, this.players, this.winningTeam);
     }
 
     getPlayerById(id: number): Player | undefined {

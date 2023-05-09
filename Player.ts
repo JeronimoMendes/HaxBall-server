@@ -12,6 +12,7 @@ class Player {
     private _haxPlayer: PlayerObject
     private _room: RoomObject
     private _isAdmin: boolean = false
+    private _team: number = 0
     goals: number = 0
     assists: number = 0
     ownGoals: number = 0
@@ -35,7 +36,12 @@ class Player {
     }
 
     get team(): number {
-        return this._haxPlayer.team
+        return this._team
+    }
+
+    set team(team: number) {
+        this._team = team
+        this._room.setPlayerTeam(this.id, team)
     }
 
     get position(): { x: number, y: number } {
