@@ -25,7 +25,7 @@ class Room {
         }
 
         this.haxRoom.onGameStop = () => {
-            this.startGame;
+            this.startGame();
         }
 
         this.haxRoom.onTeamVictory = (score) => {

@@ -8,15 +8,15 @@ export const loadMap = (mapName: string) => {
 }
 
 export const drawPlayersOnTeams = (room: RoomObject, playersList: PlayerObject[]) => {
-  console.log("Drawing players into teams")
-  const isPair = playersList.length % 2 == 0; 
+    const isPair = playersList.length % 2 == 0; 
 
-  const playersToPlay = isPair ? playersList : playersList.slice(0, -1);
-  
-  let i = 1;
-  playersToPlay.map((player) => {
-    room.setPlayerTeam(player.id, i)
-    console.log(player.name + " drawn to team " + i);
-    i = (i == 1) ? 2 : 1;
-  })
+    const playersToPlay = isPair ? playersList : playersList.slice(0, -1);
+    
+    let i = 1;
+    // randomize players
+    playersToPlay.sort(() => Math.random() - 0.5);
+    playersToPlay.map((player) => {
+        room.setPlayerTeam(player.id, i)
+        i = (i == 1) ? 2 : 1;
+    })
 }
