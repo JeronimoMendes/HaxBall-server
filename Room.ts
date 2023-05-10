@@ -71,7 +71,7 @@ class Room {
 
     onPlayerLeave(player: Player): void {
         console.log(player.name + " just left!");
-        this.state.onPlayerLeave();
+        this.state.onPlayerLeave(player);
     }
 
     onPlayerKick(player: Player): void {
@@ -124,7 +124,18 @@ abstract class RoomState {
     }
 
     abstract onPlayerJoin(): void;
-    abstract onPlayerLeave(): void;
+    onPlayerLeave(player: Player): void {
+        const team = player.team;
+
+        // pick a random waiting player to replace the leaving player if he was playing
+        if (team != 0) {
+            const waitingPlayers = this.room.players.filter((player) => player.team == 0);
+            if (waitingPlayers.length > 0) {
+                const randomWaitingPlayer = waitingPlayers[Math.floor(Math.random() * waitingPlayers.length)];
+                randomWaitingPlayer.team = team;
+            }
+        }
+    };
 }
 
 class RoomStateWaiting extends RoomState {
@@ -142,7 +153,7 @@ class RoomStateWaiting extends RoomState {
         }
     }
 
-    onPlayerLeave(): void {
+    onPlayerLeave(player: Player): void {
     }
 }
 
@@ -163,12 +174,14 @@ class RoomState1v1 extends RoomState {
         }
     }
 
-    onPlayerLeave(): void {
+    onPlayerLeave(player: Player): void {
         // if there are less than 2 player, change to waiting
         if (this.room.haxRoom.getPlayerList().length < 2) {
             this.room.haxRoom.stopGame();
             this.room.state = new RoomStateWaiting(this.room);
-        }
+        } else {
+            super.onPlayerLeave(player);
+        }     
     }
 }
 
@@ -188,11 +201,13 @@ class RoomState2v2 extends RoomState {
         }
     }
 
-    onPlayerLeave(): void {
+    onPlayerLeave(player: Player): void {
         // if there are less than 4 player, change to 1v1
         if (this.room.haxRoom.getPlayerList().length < 4) {
             this.room.state = new RoomState1v1(this.room);
-        }
+        } else {
+            super.onPlayerLeave(player);
+        }  
     }
 }
 
@@ -213,11 +228,13 @@ class RoomState3v3 extends RoomState {
         }
     }
 
-    onPlayerLeave(): void {
+    onPlayerLeave(player: Player): void {
         // if there are less than 6 player, change to 2v2
         if (this.room.haxRoom.getPlayerList().length < 6) {
             this.room.state = new RoomState2v2(this.room);
-        }
+        } else {
+            super.onPlayerLeave(player);
+        }  
     }
 }
 
@@ -234,11 +251,13 @@ class RoomState4v4 extends RoomState {
     onPlayerJoin(): void {
     }
 
-    onPlayerLeave(): void {
+    onPlayerLeave(player: Player): void {
         // if there are less than 8 player, change to 3v3
         if (this.room.haxRoom.getPlayerList().length < 8) {
             this.room.state = new RoomState3v3(this.room);
-        }
+        } else {
+            super.onPlayerLeave(player);
+        }  
     }
 
 }
