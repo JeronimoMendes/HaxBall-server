@@ -9,6 +9,9 @@ export const loadMap = (mapName: string) => {
 }
 
 export const drawPlayersOnTeams = (room: RoomObject, playersList: Player[], winningTeam?: Player[]) => {
+    // reset teams
+    playersList.map((player) => {player.team = 0})
+
     const isPair = playersList.length % 2 == 0; 
     const numberOfPlayersPerTeam = isPair ? playersList.length / 2 : (playersList.length - 1) / 2;
 
@@ -16,25 +19,31 @@ export const drawPlayersOnTeams = (room: RoomObject, playersList: Player[], winn
 
     playersToPlay.sort(() => Math.random() - 0.5);
     if (winningTeam !== undefined && winningTeam.length > 0) {
-        winningTeam.map((player) => {
+        // winning team starts again as red
+        // choose numberOfPlayersPerTeam randomly from winning team
+        winningTeam.sort(() => Math.random() - 0.5);
+        const newRedTeam = winningTeam.slice(0, numberOfPlayersPerTeam + 1);
+
+        newRedTeam.map((player) => {
             player.team = 1
         })
 
         // remove drawn players from drawing list
-        playersList.filter((player) => !winningTeam.includes(player))
+        playersList = playersList.filter((player) => !newRedTeam.includes(player))
 
+        // in case there are not enough players in the winning team
         if (winningTeam.length < numberOfPlayersPerTeam) {
             // choose two random players from the list
             const toAddToWinningTeam = playersList.slice(0, 2);
             toAddToWinningTeam.map((player) => {player.team = 1})
 
             // remove drawn players from drawing list
-            playersList.filter((player) => !toAddToWinningTeam.includes(player))
+            playersList = playersList.filter((player) => !toAddToWinningTeam.includes(player))
         }
 
-        playersList.slice(0, numberOfPlayersPerTeam).map((player) => {player.team = 1})
+        // remaining players go to blue team
+        playersList.slice(0, numberOfPlayersPerTeam + 1).map((player) => {player.team = 2})
     } else {
-        console.log("Number of players per team: " + numberOfPlayersPerTeam)
         playersList.slice(0, numberOfPlayersPerTeam).map((player) => {player.team = 1})
         playersList.slice(numberOfPlayersPerTeam).map((player) => {player.team = 2})
     }
