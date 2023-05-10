@@ -37,10 +37,11 @@ class Room {
         this.haxRoom.onTeamVictory = (score) => {
             console.log("Game ended! " + score.red + " : " + score.blue);
 
-            const redWon = score.red > score.blue;
-            const winningTeam = redWon ? "Red" : "Blue";
-            const msgColor = redWon ? colors.red : colors.blue;
-            this.haxRoom.sendAnnouncement(winningTeam + " won! " + + score.red + " : " + score.blue, undefined, msgColor, "bold", 2);
+            const winningTeam = score.red > score.blue ? 1 : 2;
+            const winningTeamName = winningTeam == 1 ? "Red" : "Blue";
+            const msgColor = winningTeam == 1 ? colors.red : colors.blue;
+            this.haxRoom.sendAnnouncement(winningTeamName + " won! " + + score.red + " : " + score.blue, undefined, msgColor, "bold", 2);
+            this.onTeamVictory(winningTeam);
         }
 
         this.haxRoom.onRoomLink = (link) => {
@@ -87,6 +88,13 @@ class Room {
         }
     }
 
+    onTeamVictory(winningTeam: number): void {
+        this.winningTeam = this.players.filter((player) => player.team == winningTeam);
+        const losingTeam: Player[] = this.players.filter((player) => player.team != winningTeam);
+
+        this.winningTeam.forEach((player) => player.wins += 1);
+        losingTeam.forEach((player) => player.losses += 1);
+    }
 
     startGame(): void {
         console.log("Starting game...")

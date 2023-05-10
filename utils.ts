@@ -15,7 +15,7 @@ export const drawPlayersOnTeams = (room: RoomObject, playersList: Player[], winn
     const playersToPlay = isPair ? playersList : playersList.slice(0, -1);
 
     playersToPlay.sort(() => Math.random() - 0.5);
-    if (winningTeam) {
+    if (winningTeam !== undefined && winningTeam.length > 0) {
         winningTeam.map((player) => {
             player.team = 1
         })
@@ -34,7 +34,19 @@ export const drawPlayersOnTeams = (room: RoomObject, playersList: Player[], winn
 
         playersList.slice(0, numberOfPlayersPerTeam).map((player) => {player.team = 1})
     } else {
+        console.log("Number of players per team: " + numberOfPlayersPerTeam)
         playersList.slice(0, numberOfPlayersPerTeam).map((player) => {player.team = 1})
         playersList.slice(numberOfPlayersPerTeam).map((player) => {player.team = 2})
+    }
+}
+
+export const createStatsDirectory = () => {
+    // create stats directory if it doesn't exist
+    if (!fs.existsSync('./stats')) {
+        fs.mkdirSync('./stats');
+    }
+
+    if (!fs.existsSync('./stats/players.json')) {
+        fs.writeFileSync('./stats/players.json', '{}');
     }
 }

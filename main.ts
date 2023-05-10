@@ -2,6 +2,10 @@
 import HaxballJS from "haxball.js";
 import dotenv from "dotenv";
 import Room from "./Room";
+import { createStatsDirectory } from "./utils";
+
+// initialize stats directory if it doesn't exist
+createStatsDirectory();
 
 dotenv.config();
 const TOKEN = process.env.TOKEN;
