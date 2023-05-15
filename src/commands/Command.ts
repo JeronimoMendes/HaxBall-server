@@ -13,7 +13,10 @@ abstract class Command {
 
 class MeCommand extends Command {
     execute(): void {
-        this._invoker.sendMessage(`You are ${this._invoker.name}`)
+        // get stats from player
+        const stats: string = this._invoker.toString()
+
+        this._invoker.sendMessage("Your stats: \n" + stats);
     }
 }
 

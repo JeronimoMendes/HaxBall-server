@@ -124,6 +124,10 @@ class Player {
         }
     }
 
+    toString(): string {
+        return `Goals: ${this._goals}, Assists: ${this.assists}, Own Goals: ${this._ownGoals}, Wins: ${this._wins}, Losses: ${this._losses}`
+    }
+
     saveStats() {
         let statsObject: any = {}
 
