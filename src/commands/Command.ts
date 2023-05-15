@@ -10,6 +10,17 @@ abstract class Command {
     abstract execute(): void
 }
 
+class HelpCommand extends Command {
+    execute(): void {
+        const message: string = "Available commands:\n" +
+            "!me - get your stats\n" +
+            "!about - get info about this server\n" +
+            "!bb - quit the game\n" +
+            "!help - get this message";
+        this._invoker.sendMessage(message);
+    }
+}
+
 class MeCommand extends Command {
     execute(): void {
         // get stats from player
@@ -35,5 +46,6 @@ class AboutCommand extends Command {
 export {
     MeCommand,
     QuitCommand,
-    AboutCommand
+    AboutCommand,
+    HelpCommand,
 };
