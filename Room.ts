@@ -100,11 +100,20 @@ class Room {
         console.log("Starting game...")
         this.shuffleTeams();
         this.haxRoom.startGame();
+
+        // pause the game to give players time to get ready
+        this.haxRoom.pauseGame(true);
+        // there's a small delay in-game when unpausing the game so there's no need 
+        // to simulate a delay here
+        this.haxRoom.pauseGame(false);
+    }
+
+    endGame(): void {
+        console.log("Ending game...")
+        this.haxRoom.stopGame();
     }
 
     shuffleTeams(): void {
-        console.log("Shuffling teams...")
-
         // Remove players that are not in the room anymore from the winning team
         this.winningTeam = this.winningTeam.filter((player) => this.players.includes(player));
 
@@ -142,14 +151,17 @@ class RoomStateWaiting extends RoomState {
     constructor(room: Room) {
         console.log("Waiting for players...")
         super(room);
-        const map : string = loadMap('futsal_1v1')
+        const map : string = loadMap('futsal_waiting')
         this.room.haxRoom.setCustomStadium(map);
     }
 
     onPlayerJoin(): void {
         // if there are more than 1 player, change to 1v1
-        if (this.room.haxRoom.getPlayerList().length > 1) {
+        if (this.room.players.length > 1) {
+            this.room.endGame();
             this.room.state = new RoomState1v1(this.room);
+        } else {
+            this.room.startGame();
         }
     }
 
@@ -170,6 +182,7 @@ class RoomState1v1 extends RoomState {
     onPlayerJoin(): void {
         // if there are more than 3 player, change to 2v2
         if (this.room.haxRoom.getPlayerList().length > 3) {
+            this.room.endGame();
             this.room.state = new RoomState2v2(this.room);
         }
     }
@@ -204,6 +217,7 @@ class RoomState2v2 extends RoomState {
     onPlayerLeave(player: Player): void {
         // if there are less than 4 player, change to 1v1
         if (this.room.haxRoom.getPlayerList().length < 4) {
+            this.room.haxRoom.stopGame();
             this.room.state = new RoomState1v1(this.room);
         } else {
             super.onPlayerLeave(player);
@@ -231,6 +245,7 @@ class RoomState3v3 extends RoomState {
     onPlayerLeave(player: Player): void {
         // if there are less than 6 player, change to 2v2
         if (this.room.haxRoom.getPlayerList().length < 6) {
+            this.room.endGame();
             this.room.state = new RoomState2v2(this.room);
         } else {
             super.onPlayerLeave(player);
@@ -254,6 +269,7 @@ class RoomState4v4 extends RoomState {
     onPlayerLeave(player: Player): void {
         // if there are less than 8 player, change to 3v3
         if (this.room.haxRoom.getPlayerList().length < 8) {
+            this.room.endGame();
             this.room.state = new RoomState3v3(this.room);
         } else {
             super.onPlayerLeave(player);
