@@ -1,8 +1,5 @@
 import * as fs from 'fs';
 
-import PlayerObject from 'haxball.js'
-import RoomObject from 'haxball.js'
-
 
 interface PlayerSerialized {
     goals: number,
@@ -10,6 +7,7 @@ interface PlayerSerialized {
     ownGoals: number
     wins: number,
     losses: number
+    isAdmin: boolean
 }
 
 class Player {
@@ -41,6 +39,11 @@ class Player {
             this._ownGoals = serialized.ownGoals
             this._wins = serialized.wins
             this._losses = serialized.losses
+            this._isAdmin = serialized.isAdmin
+        }
+
+        if (this._isAdmin) {
+            this._room.setPlayerAdmin(this.id, true)
         }
     }
 
@@ -116,7 +119,8 @@ class Player {
             assists: this.assists,
             ownGoals: this._ownGoals,
             wins: this._wins,
-            losses: this._losses
+            losses: this._losses,
+            isAdmin: this._isAdmin
         }
     }
 
