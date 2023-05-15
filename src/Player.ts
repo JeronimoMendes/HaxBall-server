@@ -137,9 +137,9 @@ class Player {
         fs.writeFile(`./stats/players.json`, JSON.stringify(statsObject, null, 2), (err) => {})
     }
 
-    sendMessage(message: string) {
+    sendMessage(message: string, color?: number | undefined, style?: string | undefined, sound: number = 1) {
         const formattedMessage = "[Server] " + message;
-        this._room.sendAnnouncement(formattedMessage, this.id, undefined, undefined, 1)
+        this._room.sendAnnouncement(formattedMessage, this.id, color, style, sound)
     }
 
     kick(reason: string) {

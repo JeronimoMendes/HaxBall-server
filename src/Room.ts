@@ -7,7 +7,8 @@ class Room {
     state: RoomState;
     haxRoom: RoomObject;
     players: Player[] = [];
-    lastKicker: Player | null = null;
+    previousKicker: Player | null = null;
+    kicker: Player | null = null;
     winningTeam: Player[] = [];
 
     constructor(haxRoom: RoomObject) {
@@ -21,6 +22,7 @@ class Room {
             let newPlayer = new Player(player, this.haxRoom);
             this.players.push(newPlayer);
             this.onPlayerJoin(newPlayer);
+            newPlayer.sendMessage("Welcome to the room! Type !help for a list of commands.", colors.red, "bold", 2);
         }
 
         this.haxRoom.onPlayerLeave = (player: PlayerObject) => {
@@ -57,8 +59,8 @@ class Room {
         this.haxRoom.onTeamGoal = (team) => {
             const teamColor = (team == 1) ? colors.red : colors.blue;
 
-            if (this.lastKicker == null) return;
-            this.haxRoom.sendAnnouncement(this.lastKicker.name + " scored!", undefined, teamColor, "bold", 2);
+            if (this.kicker == null) return;
+            this.haxRoom.sendAnnouncement(this.kicker.name + " scored!", undefined, teamColor, "bold", 2);
             this.onTeamGoal(team);
         }
 
@@ -93,16 +95,23 @@ class Room {
     }
 
     onPlayerKick(player: Player): void {
-        this.lastKicker = player;
+        this.previousKicker = player == this.kicker ? null : this.kicker;
+        this.kicker = player;
     }
 
     onTeamGoal(team: number): void {
-        if (this.lastKicker == null) return;
+        if (this.kicker == null) return;
 
-        if (this.lastKicker.team == team) {
-            this.lastKicker.goals += 1;
+        if (this.kicker.team == team) {
+            this.kicker.goals += 1;
         } else {
-            this.lastKicker.ownGoals += 1;
+            this.kicker.ownGoals += 1;
+        }
+
+        if (this.previousKicker != null) {
+            if (this.previousKicker.team == team) {
+                this.previousKicker.assists += 1;
+            }
         }
     }
 
