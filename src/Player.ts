@@ -141,6 +141,10 @@ class Player {
         const formattedMessage = "[Server] " + message;
         this._room.sendAnnouncement(formattedMessage, this.id, undefined, undefined, 1)
     }
+
+    kick(reason: string) {
+        this._room.kickPlayer(this.id, reason, false);
+    }
 }
 
 export default Player;

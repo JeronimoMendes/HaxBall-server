@@ -1,4 +1,3 @@
-import Room from "../Room";
 import Player from "../Player";
 
 abstract class Command {
@@ -20,6 +19,13 @@ class MeCommand extends Command {
     }
 }
 
+class QuitCommand extends Command {
+    execute(): void {
+        this._invoker.kick("Goodbye!");
+    }
+}
+
 export {
-    MeCommand
+    MeCommand,
+    QuitCommand
 };
