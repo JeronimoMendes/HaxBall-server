@@ -132,6 +132,11 @@ class Player {
         statsObject[this.name] = this.serialize()
         fs.writeFile(`./stats/players.json`, JSON.stringify(statsObject, null, 2), (err) => {})
     }
+
+    sendMessage(message: string) {
+        const formattedMessage = "[Server] " + message;
+        this._room.sendAnnouncement(formattedMessage, this.id, undefined, undefined, 1)
+    }
 }
 
 export default Player;

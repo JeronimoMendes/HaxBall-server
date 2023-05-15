@@ -1,6 +1,5 @@
-import RoomObject from 'haxball.js'
-import PlayerObject from 'haxball.js'
 import Player from './Player'
+import CommandFactory from './commands/CommandFactory';
 import { loadMap, drawPlayersOnTeams } from './utils'
 import { colors } from './style'
 
@@ -61,6 +60,25 @@ class Room {
             if (this.lastKicker == null) return;
             this.haxRoom.sendAnnouncement(this.lastKicker.name + " scored!", undefined, teamColor, "bold", 2);
             this.onTeamGoal(team);
+        }
+
+        this.haxRoom.onPlayerChat = (haxPlayer, message) => {
+            if (message.startsWith("!")) {
+                // strip the ! from the message
+                message = message.substring(1);
+
+                const player = this.getPlayerById(haxPlayer.id);
+                if (!player) return false;
+
+                const command = CommandFactory.createCommand(message, player);
+                if (command) {
+                    command.execute();
+                } else {
+                    player.sendMessage("Unknown command!");
+                }
+                return false;
+            }
+            return true;
         }
     }
 
