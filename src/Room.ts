@@ -1,6 +1,6 @@
 import Player from './Player'
 import CommandFactory from './commands/CommandFactory';
-import { loadMap, drawPlayersOnTeams } from './utils'
+import { loadMap, drawPlayersOnTeams, Log } from './utils'
 import { colors } from './style'
 
 class Room {
@@ -36,7 +36,7 @@ class Room {
         }
 
         this.haxRoom.onTeamVictory = (score) => {
-            console.log("Game ended! " + score.red + " : " + score.blue);
+            Log.info("Game ended! " + score.red + " : " + score.blue);
 
             const winningTeam = score.red > score.blue ? 1 : 2;
             const winningTeamName = winningTeam == 1 ? "Red" : "Blue";
@@ -46,7 +46,7 @@ class Room {
         }
 
         this.haxRoom.onRoomLink = (link) => {
-            console.log("Room link: " + link);
+            Log.info("Room link: " + link);
         }
 
         this.haxRoom.onPlayerBallKick = (haxPlayer) => {
@@ -85,12 +85,12 @@ class Room {
     }
 
     onPlayerJoin(player: Player): void {
-        console.log(player.name + " just joined!");
+        Log.info(player.name + " just joined!");
         this.state.onPlayerJoin();
     }
 
     onPlayerLeave(player: Player): void {
-        console.log(player.name + " just left!");
+        Log.info(player.name + " just left!");
         this.state.onPlayerLeave(player);
     }
 
@@ -124,7 +124,7 @@ class Room {
     }
 
     startGame(): void {
-        console.log("Starting game...")
+        Log.info("Starting game...")
         this.shuffleTeams();
         this.haxRoom.startGame();
 
@@ -136,7 +136,7 @@ class Room {
     }
 
     endGame(): void {
-        console.log("Ending game...")
+        Log.info("Ending game...")
         this.haxRoom.stopGame();
     }
 
@@ -176,7 +176,7 @@ abstract class RoomState {
 
 class RoomStateWaiting extends RoomState {
     constructor(room: Room) {
-        console.log("Waiting for players...")
+        Log.info("Waiting for players...")
         super(room);
         const map : string = loadMap('futsal_waiting')
         this.room.haxRoom.setCustomStadium(map);
@@ -198,7 +198,7 @@ class RoomStateWaiting extends RoomState {
 
 class RoomState1v1 extends RoomState {
     constructor(room: Room) {
-        console.log("1v1 started!")
+        Log.info("1v1 started!")
         super(room);
         // initialize with 1v1 stadium
         const map : string = loadMap('futsal_1v1')
@@ -227,7 +227,7 @@ class RoomState1v1 extends RoomState {
 
 class RoomState2v2 extends RoomState {
     constructor(room: Room) {
-        console.log("2v2 started!")
+        Log.info("2v2 started!")
         super(room);
         this.room.haxRoom.stopGame();
         // assign players to teams
@@ -254,7 +254,7 @@ class RoomState2v2 extends RoomState {
 
 class RoomState3v3 extends RoomState {
     constructor(room: Room) {
-        console.log("3v3 started!")
+        Log.info("3v3 started!")
         super(room);
         // initialize with 3v3 stadium
         this.room.haxRoom.stopGame();
@@ -282,7 +282,7 @@ class RoomState3v3 extends RoomState {
 
 class RoomState4v4 extends RoomState {
     constructor(room: Room) {
-        console.log("4v4 started!")
+        Log.info("4v4 started!")
         super(room);
         // initialize with 4v4 stadium
         this.room.haxRoom.stopGame();

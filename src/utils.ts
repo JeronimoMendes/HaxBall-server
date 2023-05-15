@@ -1,6 +1,4 @@
 import * as fs from 'fs';
-import RoomObject from 'haxball.js'
-import PlayerObject from 'haxball.js'
 import Player from './Player';
 
 export const loadMap = (mapName: string) => {
@@ -72,5 +70,15 @@ export const createStatsDirectory = () => {
 
     if (!fs.existsSync('./stats/players.json')) {
         fs.writeFileSync('./stats/players.json', '{}');
+    }
+}
+
+export class Log {
+    static info(message: string) {
+        console.log(`[${new Date().toUTCString()}] ${message}`);
+    }
+
+    static error(message: string) {
+        console.error(`[${new Date().toUTCString()}] ${message}`);
     }
 }
