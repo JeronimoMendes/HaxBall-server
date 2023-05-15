@@ -53,7 +53,6 @@ class Player {
 
     set goals(goals: number) {
         this._goals = goals
-        this.saveStats()
     }
 
     get ownGoals(): number {
@@ -62,7 +61,6 @@ class Player {
 
     set ownGoals(ownGoals: number) {
         this._ownGoals = ownGoals
-        this.saveStats()
     }
 
     get wins(): number {
@@ -71,7 +69,6 @@ class Player {
 
     set wins(wins: number) {
         this._wins = wins
-        // this.saveStats()
     }
 
     get losses(): number {
@@ -80,7 +77,6 @@ class Player {
 
     set losses(losses: number) {
         this._losses = losses
-        // this.saveStats()
     }
 
     get id(): number {

@@ -91,7 +91,9 @@ class Room {
 
     onPlayerLeave(player: Player): void {
         Log.info(player.name + " just left!");
+        player.saveStats();
         this.state.onPlayerLeave(player);
+        this.players = this.players.filter((player) => player.id != player.id);
     }
 
     onPlayerKick(player: Player): void {
