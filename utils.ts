@@ -9,11 +9,10 @@ export const loadMap = (mapName: string) => {
 }
 
 export const drawPlayersOnTeams = (room: RoomObject, playersList: Player[], winningTeam?: Player[]) => {
-    // reset teams
-    playersList.map((player) => {player.team = 0})
-
     const isPair = playersList.length % 2 == 0; 
-    const numberOfPlayersPerTeam = isPair ? playersList.length / 2 : (playersList.length - 1) / 2;
+    let numberOfPlayersPerTeam = isPair ? playersList.length / 2 : (playersList.length - 1) / 2;
+    numberOfPlayersPerTeam = numberOfPlayersPerTeam > 4 ? 4 : numberOfPlayersPerTeam;
+    
 
     const playersToPlay = isPair ? playersList : playersList.slice(0, -1);
 
@@ -22,30 +21,46 @@ export const drawPlayersOnTeams = (room: RoomObject, playersList: Player[], winn
         // winning team starts again as red
         // choose numberOfPlayersPerTeam randomly from winning team
         winningTeam.sort(() => Math.random() - 0.5);
-        const newRedTeam = winningTeam.slice(0, numberOfPlayersPerTeam + 1);
 
-        newRedTeam.map((player) => {
-            player.team = 1
-        })
+        // make sure to reduce winning team size if game mode decreases number of players
+        winningTeam = winningTeam.slice(0, numberOfPlayersPerTeam);
 
         // remove drawn players from drawing list
-        playersList = playersList.filter((player) => !newRedTeam.includes(player))
+        playersList = playersList.filter((player) => !winningTeam?.includes(player))
 
         // in case there are not enough players in the winning team
         if (winningTeam.length < numberOfPlayersPerTeam) {
-            // choose two random players from the list
-            const toAddToWinningTeam = playersList.slice(0, 2);
-            toAddToWinningTeam.map((player) => {player.team = 1})
+            const playersLeft = numberOfPlayersPerTeam - winningTeam.length;
+            const toAddToWinningTeam = playersList.slice(0, playersLeft);
+            winningTeam = winningTeam.concat(toAddToWinningTeam);
 
             // remove drawn players from drawing list
             playersList = playersList.filter((player) => !toAddToWinningTeam.includes(player))
         }
 
+        winningTeam.map((player) => {
+            if (player.team != 1) player.team = 1;
+        })
+
         // remaining players go to blue team
-        playersList.slice(0, numberOfPlayersPerTeam + 1).map((player) => {player.team = 2})
+        // give priority to players that have not played yet
+        // by sorting them by team, 0 first, then 1, then 2
+        // sort by lowest team number first
+        playersList.sort((a, b) => a.team - b.team);
+
+        // reset team to 0 for all players
+        playersList.map((player) => {
+            if (player.team != 0) player.team = 0;
+        });
+
+        playersList.slice(0, numberOfPlayersPerTeam).map((player) => {
+            if (player.team != 2) player.team = 2;
+        })
     } else {
-        playersList.slice(0, numberOfPlayersPerTeam).map((player) => {player.team = 1})
-        playersList.slice(numberOfPlayersPerTeam).map((player) => {player.team = 2})
+        playersList.slice(0, numberOfPlayersPerTeam).map((player) => {
+            player.team = 1
+        })
+        playersList.slice(numberOfPlayersPerTeam, numberOfPlayersPerTeam * 2).map((player) => {player.team = 2})
     }
 }
 
