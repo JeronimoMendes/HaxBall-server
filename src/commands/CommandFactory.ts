@@ -1,4 +1,4 @@
-import { MeCommand, QuitCommand } from "./Command";
+import { MeCommand, QuitCommand, AboutCommand } from "./Command";
 import Player from "../Player";
 
 class CommandFactory {
@@ -10,7 +10,9 @@ class CommandFactory {
             case "me":
                 return new MeCommand(invoker);
             case "bb":
-                return new QuitCommand(invoker) 
+                return new QuitCommand(invoker);
+            case "about":
+                return new AboutCommand(invoker);
             default:
                 return null;
         }

@@ -25,7 +25,15 @@ class QuitCommand extends Command {
     }
 }
 
+class AboutCommand extends Command {
+    execute(): void {
+        const message: string = "This server is programmed by @🍍Stilton#4932\nIt's main objective is to gather data and train a predictive xG model."
+        this._invoker.sendMessage(message);
+    }
+}
+
 export {
     MeCommand,
-    QuitCommand
+    QuitCommand,
+    AboutCommand
 };
