@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Set the source file and backup destination
-source_dir="./stats"
-backup_dir="./backup"
+source_dir="$(dirname "${BASH_SOURCE[0]}")/stats"
+backup_dir="$(dirname "${BASH_SOURCE[0]}")/backup"
 
 # Generate a timestamp for the backup file
 timestamp=$(date +"%Y%m%d%H%M%S")
