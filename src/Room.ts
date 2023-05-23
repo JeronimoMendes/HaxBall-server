@@ -301,7 +301,6 @@ class RoomState3v3 extends RoomState {
     onPlayerJoin(): void {
         // if there are more than 11 player, change to 4v4
         if (this.room.haxRoom.getPlayerList().length > 7) {
-            this.room.endGame();
             this.room.state = new RoomState4v4(this.room);
         }
     }

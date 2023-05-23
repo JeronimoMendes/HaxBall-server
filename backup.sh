@@ -1,17 +1,13 @@
 #!/bin/bash
 
 # Set the source file and backup destination
-source_file="./stats/players.json"
-backup_dir="./stats/backup"
+source_dir="./stats"
+backup_dir="./backup"
 
 # Generate a timestamp for the backup file
 timestamp=$(date +"%Y%m%d%H%M%S")
 
-# Create the backup filename with the timestamp
-backup_file="${backup_dir}/${timestamp}_players.bak"
+mkdir -p "$backup_dir/$timestamp"
+cp -r "$source_dir" "$backup_dir/$timestamp"
 
-# Copy the source file to the backup location
-cp "$source_file" "$backup_file"
-
-# Print a success message
-echo "Backup created: $backup_file"
+echo "Backup created: $timestamp"
