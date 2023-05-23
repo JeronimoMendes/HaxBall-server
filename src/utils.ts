@@ -79,7 +79,8 @@ export class Log {
     }
 
     static debug(message: string) {
-        console.log(`\x1b[33m[DEBUG][${new Date().toUTCString()}] ${message}\x1b[0m`);
+        if (process.env.NODE_ENV == 'development')
+            console.log(`\x1b[33m[DEBUG][${new Date().toUTCString()}] ${message}\x1b[0m`);
     }
 
     static error(message: string) {

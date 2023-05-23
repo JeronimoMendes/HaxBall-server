@@ -9,11 +9,12 @@ createStatsDirectory();
 
 dotenv.config();
 const TOKEN = process.env.TOKEN;
+const ROOM_NAME = process.env.ROOM_NAME;
 
 HaxballJS.then((HBInit) => {
   // Same as in Haxball Headless Host Documentation
   const roomHaxBall = HBInit({
-    roomName: "Test Server",
+    roomName: ROOM_NAME,
     maxPlayers: 16,
     public: true,
     noPlayer: true,
