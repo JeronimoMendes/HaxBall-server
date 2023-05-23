@@ -1,6 +1,7 @@
 import Player from './Player'
+import Kick from './Kick';
 import CommandFactory from './commands/CommandFactory';
-import { loadMap, drawPlayersOnTeams, Log } from './utils'
+import { loadMap, drawPlayersOnTeams, Log, writeCSV } from './utils'
 import { colors } from './style'
 
 class Room {
@@ -10,6 +11,7 @@ class Room {
     previousKicker: Player | null = null;
     kicker: Player | null = null;
     winningTeam: Player[] = [];
+    gameKicks: Kick[] = [];
 
     constructor(haxRoom: RoomObject) {
         this.haxRoom = haxRoom;
@@ -99,6 +101,8 @@ class Room {
     onPlayerKick(player: Player): void {
         this.previousKicker = player == this.kicker ? null : this.kicker;
         this.kicker = player;
+        const newKick = new Kick(player, this);
+        this.gameKicks.push(newKick);
     }
 
     onTeamGoal(team: number): void {
@@ -106,6 +110,7 @@ class Room {
 
         if (this.kicker.team == team) {
             this.kicker.goals += 1;
+            this.gameKicks[this.gameKicks.length - 1].goal = true;
         } else {
             this.kicker.ownGoals += 1;
         }
@@ -123,6 +128,8 @@ class Room {
 
         this.winningTeam.forEach((player) => player.wins += 1);
         losingTeam.forEach((player) => player.losses += 1);
+        this.state.endGame();
+        this.gameKicks = [];
     }
 
     startGame(): void {
@@ -140,6 +147,10 @@ class Room {
     endGame(): void {
         Log.info("Ending game...")
         this.haxRoom.stopGame();
+        this.state.endGame();
+
+        // reset game kicks
+        this.gameKicks = [];
     }
 
     shuffleTeams(): void {
@@ -152,7 +163,15 @@ class Room {
     getPlayerById(id: number): Player | undefined {
         return this.players.find((player) => player.id == id);
     }
-}
+
+    gameKicksToCSV(): string {
+        let csv = "";
+        this.gameKicks.forEach((kick) => {
+            csv += kick.toCSV() + "\n";
+        });
+        return csv;
+    }
+};
 
 abstract class RoomState {
     protected room: Room;
@@ -162,6 +181,8 @@ abstract class RoomState {
     }
 
     abstract onPlayerJoin(): void;
+    abstract endGame(): void;
+
     onPlayerLeave(player: Player): void {
         const team = player.team;
 
@@ -196,6 +217,11 @@ class RoomStateWaiting extends RoomState {
 
     onPlayerLeave(player: Player): void {
     }
+
+    endGame(): void {
+        const csv = this.room.gameKicksToCSV();
+        writeCSV(csv, "xGtest");
+    }
 }
 
 class RoomState1v1 extends RoomState {
@@ -219,11 +245,17 @@ class RoomState1v1 extends RoomState {
     onPlayerLeave(player: Player): void {
         // if there are less than 2 player, change to waiting
         if (this.room.haxRoom.getPlayerList().length < 2) {
-            this.room.haxRoom.stopGame();
+            this.room.endGame();
             this.room.state = new RoomStateWaiting(this.room);
         } else {
             super.onPlayerLeave(player);
         }     
+    }
+
+    endGame(): void {
+        // store game kicks in 1v1 csv file
+        const csv = this.room.gameKicksToCSV();
+        writeCSV(csv, "xG1v1");
     }
 }
 
@@ -231,8 +263,6 @@ class RoomState2v2 extends RoomState {
     constructor(room: Room) {
         Log.info("2v2 started!")
         super(room);
-        this.room.haxRoom.stopGame();
-        // assign players to teams
         this.room.startGame();
     }
 
@@ -246,11 +276,16 @@ class RoomState2v2 extends RoomState {
     onPlayerLeave(player: Player): void {
         // if there are less than 4 player, change to 1v1
         if (this.room.haxRoom.getPlayerList().length < 4) {
-            this.room.haxRoom.stopGame();
+            this.room.endGame();
             this.room.state = new RoomState1v1(this.room);
         } else {
             super.onPlayerLeave(player);
         }  
+    }
+    
+    endGame(): void {
+        const csv = this.room.gameKicksToCSV();
+        writeCSV(csv, "xG2v2");
     }
 }
 
@@ -259,7 +294,6 @@ class RoomState3v3 extends RoomState {
         Log.info("3v3 started!")
         super(room);
         // initialize with 3v3 stadium
-        this.room.haxRoom.stopGame();
         this.room.haxRoom.setCustomStadium(loadMap('futsal_3v3'));
         this.room.startGame();
     }
@@ -267,6 +301,7 @@ class RoomState3v3 extends RoomState {
     onPlayerJoin(): void {
         // if there are more than 11 player, change to 4v4
         if (this.room.haxRoom.getPlayerList().length > 7) {
+            this.room.endGame();
             this.room.state = new RoomState4v4(this.room);
         }
     }
@@ -279,6 +314,11 @@ class RoomState3v3 extends RoomState {
         } else {
             super.onPlayerLeave(player);
         }  
+    } 
+
+    endGame(): void {
+        const csv = this.room.gameKicksToCSV();
+        writeCSV(csv, "xG3v3");
     }
 }
 
@@ -287,7 +327,6 @@ class RoomState4v4 extends RoomState {
         Log.info("4v4 started!")
         super(room);
         // initialize with 4v4 stadium
-        this.room.haxRoom.stopGame();
         this.room.haxRoom.setCustomStadium(loadMap('futsal_4v4'));
         this.room.startGame();
     }
@@ -305,6 +344,10 @@ class RoomState4v4 extends RoomState {
         }  
     }
 
+    endGame(): void {
+        const csv = this.room.gameKicksToCSV();
+        writeCSV(csv, "xG4v4");
+    }
 }
 
 export default Room;

@@ -75,10 +75,26 @@ export const createStatsDirectory = () => {
 
 export class Log {
     static info(message: string) {
-        console.log(`[${new Date().toUTCString()}] ${message}`);
+        console.log(`\x1b[32m[INFO][${new Date().toUTCString()}] ${message}\x1b[0m`);
+    }
+
+    static debug(message: string) {
+        console.log(`\x1b[33m[DEBUG][${new Date().toUTCString()}] ${message}\x1b[0m`);
     }
 
     static error(message: string) {
-        console.error(`[${new Date().toUTCString()}] ${message}`);
+        // print message with color red
+        const formattedMessage = `\x1b[31m[ERROR][${new Date().toUTCString()}] ${message}\x1b[0m`;
+        console.log(formattedMessage);
+        console.error(formattedMessage);
     }
+}
+
+export const writeCSV = (data: string, fileName: string) => {
+    Log.info(`Writing ${fileName}.csv`);
+    fs.appendFile(`./stats/${fileName}.csv`, data, (err) => {
+        if (err) {
+            Log.error(err.message);
+        }
+    });
 }

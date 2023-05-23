@@ -1,4 +1,6 @@
 import * as fs from 'fs';
+import { Position } from './Common';
+import { Log } from './utils';
 
 
 interface PlayerSerialized {
@@ -11,18 +13,21 @@ interface PlayerSerialized {
 }
 
 class Player {
-    private _haxPlayer: PlayerObject
     private _room: RoomObject
+    id: number
+    name: string
     private _isAdmin: boolean = false
-    private _team: number = 0
     private _goals: number = 0
     assists: number = 0
     private _ownGoals: number = 0
     private _wins: number = 0
     private _losses: number = 0
-
+    private _team: number
+    
     constructor(haxPlayer: PlayerObject, room: RoomObject) {
-        this._haxPlayer = haxPlayer
+        this.id = haxPlayer.id
+        this.name = haxPlayer.name
+        this._team = haxPlayer.team
         this._room = room
 
         // fetch stats from file
@@ -45,6 +50,10 @@ class Player {
         if (this._isAdmin) {
             this._room.setPlayerAdmin(this.id, true)
         }
+    }
+
+    get haxPlayer(): PlayerObject {
+        return this._room.getPlayer(this.id)
     }
 
     get goals(): number {
@@ -79,14 +88,6 @@ class Player {
         this._losses = losses
     }
 
-    get id(): number {
-        return this._haxPlayer.id
-    }
-
-    get name(): string {
-        return this._haxPlayer.name
-    }
-
     get team(): number {
         return this._team
     }
@@ -96,8 +97,8 @@ class Player {
         this._room.setPlayerTeam(this.id, team)
     }
 
-    get position(): { x: number, y: number } {
-        return this._haxPlayer.position
+    get position(): Position {
+        return this.haxPlayer.position;
     }
 
     set isAdmin(isAdmin: boolean) {
@@ -130,7 +131,11 @@ class Player {
         const data: string = fs.readFileSync(`./stats/players.json`, 'utf-8')
         statsObject = JSON.parse(data)
         statsObject[this.name] = this.serialize()
-        fs.writeFile(`./stats/players.json`, JSON.stringify(statsObject, null, 2), (err) => {})
+        fs.writeFile(`./stats/players.json`, JSON.stringify(statsObject, null, 2), (err) => {
+            if (err) {
+                Log.error(err.message);
+            }
+        })
     }
 
     sendMessage(message: string, color?: number | undefined, style?: string | undefined, sound: number = 1) {
