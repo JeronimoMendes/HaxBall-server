@@ -34,6 +34,7 @@ abstract class RoomState {
     }
 
     swapStadium(stadium: string): void {
+        this.room.endGame();
         this.room.haxRoom.setCustomStadium(loadMap(stadium));
     }
 }

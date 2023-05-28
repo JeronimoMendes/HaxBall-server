@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 import Player from './Player';
 
+export const inDevelopment = process.env.NODE_ENV === 'development';
+
 export const loadMap = (mapName: string) => {
     const map = fs.readFileSync(`./stadiums/${mapName}.hbs`, 'utf-8');
     return map;
@@ -68,8 +70,16 @@ export const createStatsDirectory = () => {
         fs.mkdirSync('./stats');
     }
 
+    if (!fs.existsSync('./stats-dev')) {
+        fs.mkdirSync('./stats-dev');
+    }
+
     if (!fs.existsSync('./stats/players.json')) {
         fs.writeFileSync('./stats/players.json', '{}');
+    }
+
+    if (!fs.existsSync('./stats-dev/players.json')) {
+        fs.writeFileSync('./stats-dev/players.json', '{}');
     }
 }
 
@@ -79,7 +89,7 @@ export class Log {
     }
 
     static debug(message: string) {
-        if (process.env.NODE_ENV == 'development')
+        if (inDevelopment)
             console.log(`\x1b[33m[DEBUG][${new Date().toUTCString()}] ${message}\x1b[0m`);
     }
 
@@ -93,7 +103,9 @@ export class Log {
 
 export const writeCSV = (data: string, fileName: string) => {
     Log.info(`Writing ${fileName}.csv`);
-    fs.appendFile(`./stats/${fileName}.csv`, data, (err) => {
+
+    const filePath: string = inDevelopment ? `./stats-dev/${fileName}.csv` : `./stats/${fileName}.csv`;
+    fs.appendFile(filePath, data, (err) => {
         if (err) {
             Log.error(err.message);
         }

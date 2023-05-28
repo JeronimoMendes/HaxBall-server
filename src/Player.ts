@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 import { Position } from './Common';
-import { Log } from './utils';
+import { Log, inDevelopment } from './utils';
 
+const statsPath: string = inDevelopment ? `./stats-dev/players.json` : `./stats/players.json`
 
 interface PlayerSerialized {
     goals: number,
@@ -32,7 +33,8 @@ class Player {
 
         // fetch stats from file
         let serialized: PlayerSerialized | null = null;
-        const statsObject = fs.readFileSync(`./stats/players.json`, 'utf-8')
+
+        const statsObject = fs.readFileSync(statsPath, 'utf-8')
         let readPlayer = JSON.parse(statsObject)[this.name]
         if (readPlayer !== undefined) {
             serialized = readPlayer
@@ -128,10 +130,10 @@ class Player {
     saveStats() {
         let statsObject: any = {}
 
-        const data: string = fs.readFileSync(`./stats/players.json`, 'utf-8')
+        const data: string = fs.readFileSync(statsPath, 'utf-8')
         statsObject = JSON.parse(data)
         statsObject[this.name] = this.serialize()
-        fs.writeFile(`./stats/players.json`, JSON.stringify(statsObject, null, 2), (err) => {
+        fs.writeFile(statsPath, JSON.stringify(statsObject, null, 2), (err) => {
             if (err) {
                 Log.error(err.message);
             }
