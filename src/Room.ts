@@ -1,8 +1,10 @@
 import Player from './Player'
 import Kick from './Kick';
 import CommandFactory from './commands/CommandFactory';
-import { loadMap, drawPlayersOnTeams, Log, writeCSV } from './utils'
+import { drawPlayersOnTeams, Log } from './utils'
 import { colors } from './style'
+import RoomState from './states/RoomState';
+import RoomStateWaiting from './states/RoomStateWaiting';
 
 class Room {
     state: RoomState;
@@ -29,7 +31,7 @@ class Room {
 
         this.haxRoom.onPlayerLeave = (player: PlayerObject) => {
             let oldPlayer: Player = new Player(player, this.haxRoom);
-            this.players = this.players.filter((player) => player.id != oldPlayer.id);
+            this.players = this.players.filter((player) => player.name != oldPlayer.name);
             this.onPlayerLeave(oldPlayer);
         }
 
@@ -52,7 +54,7 @@ class Room {
         }
 
         this.haxRoom.onPlayerBallKick = (haxPlayer) => {
-            const player = this.getPlayerById(haxPlayer.id);
+            const player = this.getPlayerByName(haxPlayer.name);
             if (!player) return;
 
             this.onPlayerKick(player);
@@ -71,7 +73,7 @@ class Room {
                 // strip the ! from the message
                 message = message.substring(1);
 
-                const player = this.getPlayerById(haxPlayer.id);
+                const player = this.getPlayerByName(haxPlayer.name);
                 if (!player) return false;
 
                 const command = CommandFactory.createCommand(message, player);
@@ -95,7 +97,6 @@ class Room {
         Log.info(player.name + " just left!");
         player.saveStats();
         this.state.onPlayerLeave(player);
-        this.players = this.players.filter((player) => player.id != player.id);
     }
 
     onPlayerKick(player: Player): void {
@@ -110,7 +111,8 @@ class Room {
 
         if (this.kicker.team == team) {
             this.kicker.goals += 1;
-            this.gameKicks[this.gameKicks.length - 1].goal = true;
+            if (this.gameKicks.length > 0)
+                this.gameKicks[this.gameKicks.length - 1].goal = true;
         } else {
             this.kicker.ownGoals += 1;
         }
@@ -128,7 +130,8 @@ class Room {
 
         this.winningTeam.forEach((player) => player.wins += 1);
         losingTeam.forEach((player) => player.losses += 1);
-        this.state.endGame();
+
+        this.state.saveGameKicks(this.gameKicksToCSV());
         this.gameKicks = [];
     }
 
@@ -147,7 +150,7 @@ class Room {
     endGame(): void {
         Log.info("Ending game...")
         this.haxRoom.stopGame();
-        this.state.endGame();
+        this.state.saveGameKicks(this.gameKicksToCSV());
 
         // reset game kicks
         this.gameKicks = [];
@@ -160,8 +163,8 @@ class Room {
         drawPlayersOnTeams(this.haxRoom, this.players, this.winningTeam);
     }
 
-    getPlayerById(id: number): Player | undefined {
-        return this.players.find((player) => player.id == id);
+    getPlayerByName(name: string): Player | undefined {
+        return this.players.find((player) => player.name == name);
     }
 
     gameKicksToCSV(): string {
@@ -172,181 +175,5 @@ class Room {
         return csv;
     }
 };
-
-abstract class RoomState {
-    protected room: Room;
-
-    constructor(room: Room) {
-        this.room = room;
-    }
-
-    abstract onPlayerJoin(): void;
-    abstract endGame(): void;
-
-    onPlayerLeave(player: Player): void {
-        const team = player.team;
-
-        // pick a random waiting player to replace the leaving player if he was playing
-        if (team != 0) {
-            const waitingPlayers = this.room.players.filter((player) => player.team == 0);
-            if (waitingPlayers.length > 0) {
-                const randomWaitingPlayer = waitingPlayers[Math.floor(Math.random() * waitingPlayers.length)];
-                randomWaitingPlayer.team = team;
-            }
-        }
-    };
-}
-
-class RoomStateWaiting extends RoomState {
-    constructor(room: Room) {
-        Log.info("Waiting for players...")
-        super(room);
-        const map : string = loadMap('futsal_waiting')
-        this.room.haxRoom.setCustomStadium(map);
-    }
-
-    onPlayerJoin(): void {
-        // if there are more than 1 player, change to 1v1
-        if (this.room.players.length > 1) {
-            this.room.endGame();
-            this.room.state = new RoomState1v1(this.room);
-        } else {
-            this.room.startGame();
-        }
-    }
-
-    onPlayerLeave(player: Player): void {
-    }
-
-    endGame(): void {
-        const csv = this.room.gameKicksToCSV();
-        writeCSV(csv, "xGtest");
-    }
-}
-
-class RoomState1v1 extends RoomState {
-    constructor(room: Room) {
-        Log.info("1v1 started!")
-        super(room);
-        // initialize with 1v1 stadium
-        const map : string = loadMap('futsal_1v1')
-        this.room.haxRoom.setCustomStadium(map);
-        this.room.startGame();
-    }
-    
-    onPlayerJoin(): void {
-        // if there are more than 3 player, change to 2v2
-        if (this.room.haxRoom.getPlayerList().length > 3) {
-            this.room.endGame();
-            this.room.state = new RoomState2v2(this.room);
-        }
-    }
-
-    onPlayerLeave(player: Player): void {
-        // if there are less than 2 player, change to waiting
-        if (this.room.haxRoom.getPlayerList().length < 2) {
-            this.room.endGame();
-            this.room.state = new RoomStateWaiting(this.room);
-        } else {
-            super.onPlayerLeave(player);
-        }     
-    }
-
-    endGame(): void {
-        // store game kicks in 1v1 csv file
-        const csv = this.room.gameKicksToCSV();
-        writeCSV(csv, "xG1v1");
-    }
-}
-
-class RoomState2v2 extends RoomState {
-    constructor(room: Room) {
-        Log.info("2v2 started!")
-        super(room);
-        this.room.startGame();
-    }
-
-    onPlayerJoin(): void {
-        // if there are more than 7 player, change to 3v3
-        if (this.room.haxRoom.getPlayerList().length > 5) {
-            this.room.state = new RoomState3v3(this.room);
-        }
-    }
-
-    onPlayerLeave(player: Player): void {
-        // if there are less than 4 player, change to 1v1
-        if (this.room.haxRoom.getPlayerList().length < 4) {
-            this.room.endGame();
-            this.room.state = new RoomState1v1(this.room);
-        } else {
-            super.onPlayerLeave(player);
-        }  
-    }
-    
-    endGame(): void {
-        const csv = this.room.gameKicksToCSV();
-        writeCSV(csv, "xG2v2");
-    }
-}
-
-class RoomState3v3 extends RoomState {
-    constructor(room: Room) {
-        Log.info("3v3 started!")
-        super(room);
-        // initialize with 3v3 stadium
-        this.room.haxRoom.setCustomStadium(loadMap('futsal_3v3'));
-        this.room.startGame();
-    }
-
-    onPlayerJoin(): void {
-        // if there are more than 11 player, change to 4v4
-        if (this.room.haxRoom.getPlayerList().length > 7) {
-            this.room.state = new RoomState4v4(this.room);
-        }
-    }
-
-    onPlayerLeave(player: Player): void {
-        // if there are less than 6 player, change to 2v2
-        if (this.room.haxRoom.getPlayerList().length < 6) {
-            this.room.endGame();
-            this.room.state = new RoomState2v2(this.room);
-        } else {
-            super.onPlayerLeave(player);
-        }  
-    } 
-
-    endGame(): void {
-        const csv = this.room.gameKicksToCSV();
-        writeCSV(csv, "xG3v3");
-    }
-}
-
-class RoomState4v4 extends RoomState {
-    constructor(room: Room) {
-        Log.info("4v4 started!")
-        super(room);
-        // initialize with 4v4 stadium
-        this.room.haxRoom.setCustomStadium(loadMap('futsal_4v4'));
-        this.room.startGame();
-    }
-
-    onPlayerJoin(): void {
-    }
-
-    onPlayerLeave(player: Player): void {
-        // if there are less than 8 player, change to 3v3
-        if (this.room.haxRoom.getPlayerList().length < 8) {
-            this.room.endGame();
-            this.room.state = new RoomState3v3(this.room);
-        } else {
-            super.onPlayerLeave(player);
-        }  
-    }
-
-    endGame(): void {
-        const csv = this.room.gameKicksToCSV();
-        writeCSV(csv, "xG4v4");
-    }
-}
 
 export default Room;
