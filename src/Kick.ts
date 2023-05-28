@@ -37,21 +37,25 @@ class Kick {
     }
 
     toCSV(): string {
-        let csvLine = "";
-
-        csvLine += this.kicker.team;
-        csvLine += ", " + this.kickerPosition.x + ", " + this.kickerPosition.y;
-        csvLine += ", " + this.ballPosition.x + ", " + this.ballPosition.y;
-        csvLine += ", " + this.ballVelocity.x + ", " + this.ballVelocity.y;
-        csvLine += ", " + this.goal;
+        let fields = [
+            this.kicker.name,
+            this.kicker.team,
+            this.kickerPosition.x,
+            this.kickerPosition.y,
+            this.ballPosition.x,
+            this.ballPosition.y,
+            this.ballVelocity.x,
+            this.ballVelocity.y,
+            this.goal
+        ]
 
         if (this.positionsTeam.length > 0) 
-            csvLine += ", " + this.positionsTeam.map((position) => position.x + ", " + position.y).join(", ");
+            this.positionsTeam.map((position) => fields.push(position.x, position.y));
 
         if (this.positionsOpponent.length > 0)
-            csvLine += ", " + this.positionsOpponent.map((position) => position.x + ", " + position.y).join(", ");
+            this.positionsOpponent.map((position) => fields.push(position.x, position.y));
 
-        return csvLine;
+        return fields.join(",");
     }
 }
 
