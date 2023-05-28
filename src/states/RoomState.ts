@@ -22,17 +22,18 @@ abstract class RoomState {
             if (waitingPlayers.length > 0) {
                 const randomWaitingPlayer = waitingPlayers[Math.floor(Math.random() * waitingPlayers.length)];
                 randomWaitingPlayer.team = team;
+                this.room.haxRoom.pauseGame(true);
                 this.room.haxRoom.pauseGame(false);
             }
         }
     };
 
     swapState(newState: RoomState): void {
+        this.room.endGame();
         this.room.state = newState;
     }
 
     swapStadium(stadium: string): void {
-        this.room.endGame();
         this.room.haxRoom.setCustomStadium(loadMap(stadium));
     }
 }

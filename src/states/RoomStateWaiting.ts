@@ -6,14 +6,20 @@ import Player from "../Player";
 import { Log, loadMap, writeCSV } from "../utils";
 
 class RoomStateWaiting extends RoomState {
-    constructor(room: Room) {
-        if (room.players.length > 1)
-            throw new Error("Too many players to start waiting: " + room.players.length);
+    constructor(room: Room, initializing = false) {
+        if (initializing) {
+            Log.info("Initializing...")
+            super(room);
+            this.room.haxRoom.setCustomStadium(loadMap('futsal_waiting'));
+        } else {
+            if (room.players.length > 1)
+                throw new Error("Too many players to start waiting: " + room.players.length);
 
-        Log.info("Waiting for players...")
-        super(room);
-        const map : string = loadMap('futsal_waiting')
-        this.room.haxRoom.setCustomStadium(map);
+            Log.info("Waiting for players...")
+            super(room);
+            this.swapStadium('futsal_waiting');
+            this.room.startGame();
+        }
     }
 
     onPlayerJoin(): void {

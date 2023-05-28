@@ -17,7 +17,7 @@ class Room {
 
     constructor(haxRoom: RoomObject) {
         this.haxRoom = haxRoom;
-        this.state = new RoomStateWaiting(this);
+        this.state = new RoomStateWaiting(this, true);
 
         this.haxRoom.setScoreLimit(3);
         this.haxRoom.setTimeLimit(3);
