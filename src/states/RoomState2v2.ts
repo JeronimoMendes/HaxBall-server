@@ -16,6 +16,7 @@ class RoomState2v2 extends RoomState {
 
         Log.info("2v2 started!")
         super(room);
+        this.swapStadium('futsal_2v2')
         this.room.startGame();
     }
 
