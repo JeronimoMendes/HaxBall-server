@@ -38,6 +38,7 @@ class Kick {
 
     toCSV(): string {
         let fields = [
+            this.room.currentGameID,
             this.kicker.name,
             this.kicker.team,
             this.kickerPosition.x,

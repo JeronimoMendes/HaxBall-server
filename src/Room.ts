@@ -5,6 +5,8 @@ import { drawPlayersOnTeams, Log } from './utils'
 import { colors } from './style'
 import RoomState from './states/RoomState';
 import RoomStateWaiting from './states/RoomStateWaiting';
+import { v4 as uuidv4 } from 'uuid';
+
 
 class Room {
     state: RoomState;
@@ -14,6 +16,7 @@ class Room {
     kicker: Player | null = null;
     winningTeam: Player[] = [];
     gameKicks: Kick[] = [];
+    currentGameID: string  = uuidv4();
 
     constructor(haxRoom: RoomObject) {
         this.haxRoom = haxRoom;
@@ -86,6 +89,10 @@ class Room {
             }
             return true;
         }
+
+        this.haxRoom.onGameStart = () => {
+            this.onGameStart();
+        }
     }
 
     onPlayerJoin(player: Player): void {
@@ -133,6 +140,10 @@ class Room {
 
         this.state.saveGameKicks(this.gameKicksToCSV());
         this.gameKicks = [];
+    }
+
+    onGameStart(): void {
+        this.currentGameID = uuidv4();
     }
 
     startGame(): void {
