@@ -1,6 +1,7 @@
 import Room from "../Room";
 import Player from "../Player";
 import { loadMap } from "../utils";
+import { colors } from "../style";
 
 abstract class RoomState {
     protected room: Room;
@@ -22,6 +23,14 @@ abstract class RoomState {
             if (waitingPlayers.length > 0) {
                 const randomWaitingPlayer = waitingPlayers[Math.floor(Math.random() * waitingPlayers.length)];
                 randomWaitingPlayer.team = team;
+
+                this.room.haxRoom.sendAnnouncement(
+                    `Substituting ${player.name} for ${randomWaitingPlayer.name}`,
+                    undefined,
+                    colors.green,
+                    "bold",
+                    2
+                );
                 this.room.haxRoom.pauseGame(true);
                 this.room.haxRoom.pauseGame(false);
             }
