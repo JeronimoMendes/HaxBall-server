@@ -1,7 +1,5 @@
-import DiscPropertiesObject from "haxball.js"
 import Room from "./Room";
 import { Position, Velocity } from "./Common";
-import { Log } from "./utils";
 
 class Ball {
     _ball: DiscPropertiesObject = {} as DiscPropertiesObject;
@@ -22,7 +20,7 @@ class Ball {
     }
 
     get velocity(): Velocity {
-        return { x: this._ball.x, y: this._ball.y };
+        return { x: this._ball.xspeed, y: this._ball.yspeed };
     }
 }
 
