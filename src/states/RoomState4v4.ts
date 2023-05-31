@@ -3,7 +3,7 @@ import RoomState3v3 from "./RoomState3v3";
 
 import Room from "../Room";
 import Player from "../Player";
-import { Log, loadMap, writeCSV } from "../utils";
+import { Log, writeCSV } from "../utils";
 
 class RoomState4v4 extends RoomState {
     constructor(room: Room) {
@@ -26,6 +26,10 @@ class RoomState4v4 extends RoomState {
         } else {
             super.replaceLeavingPlayer(player);
         }  
+    }
+
+    onTeamVictory(): void {
+        
     }
 
     saveGameKicks(kicks: string): void {

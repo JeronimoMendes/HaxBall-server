@@ -4,6 +4,7 @@ import RoomState2v2 from "./RoomState2v2";
 
 import Room from "../Room";
 import Player from "../Player";
+import { ChangeGameModeBallot } from "../votes/ballot";
 import { Log, writeCSV } from "../utils";
 
 class RoomState1v1 extends RoomState {
@@ -21,9 +22,8 @@ class RoomState1v1 extends RoomState {
     }
     
     onPlayerJoin(): void {
-        // if there are more than 3 player, change to 2v2
         if (this.room.players.length > 3) {
-            this.swapState(new RoomState2v2(this.room));
+            this.room.currentBallot = new ChangeGameModeBallot(this.room, this.onBallotResult.bind(this), "1v1", "2v2");
         }
     }
 
@@ -34,6 +34,17 @@ class RoomState1v1 extends RoomState {
         } else {
             this.replaceLeavingPlayer(player);
         }     
+    }
+
+    onTeamVictory(): void {
+        if (this.room.players.length > 3) {
+            this.swapState(new RoomState2v2(this.room));
+        }
+    }
+
+    onBallotResult(result: string): void {
+        if (result === "2v2")
+            this.swapState(new RoomState2v2(this.room));
     }
 
     saveGameKicks(kicks: string): void {

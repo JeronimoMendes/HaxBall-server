@@ -1,4 +1,5 @@
 import Player from "../Player";
+import { Ballot } from "../votes/ballot";
 
 abstract class Command {
     _invoker: Player
@@ -43,9 +44,36 @@ class AboutCommand extends Command {
     }
 }
 
+
+class VoteCommand extends Command {
+    _args: string[]
+    _ballot: Ballot
+
+    constructor(invoker: Player, args: string[], ballot: Ballot) {
+        super(invoker);
+        this._args = args;
+        this._ballot = ballot;
+    }
+
+    execute(): void {
+        if (this._args.length == 0) {
+            this._invoker.sendMessage("Please specify your vote!");
+            return;
+        }
+
+        if (this._args.length > 1) {
+            this._invoker.sendMessage("Please specify only one vote!");
+            return;
+        }
+
+        this._ballot.castVote(this._invoker, this._args[0]);
+    }
+}
+
 export {
     MeCommand,
     QuitCommand,
     AboutCommand,
     HelpCommand,
+    VoteCommand,
 };

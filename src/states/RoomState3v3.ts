@@ -4,7 +4,8 @@ import RoomState4v4 from "./RoomState4v4";
 
 import Room from "../Room";
 import Player from "../Player";
-import { Log, loadMap, writeCSV } from "../utils";
+import { Log, writeCSV } from "../utils";
+import { ChangeGameModeBallot } from "../votes/ballot";
 
 class RoomState3v3 extends RoomState {
     constructor(room: Room) {
@@ -23,7 +24,7 @@ class RoomState3v3 extends RoomState {
     onPlayerJoin(): void {
         // if there are more than 11 player, change to 4v4
         if (this.room.players.length > 7) {
-            this.swapState(new RoomState4v4(this.room));
+            this.room.currentBallot = new ChangeGameModeBallot(this.room, this.onBallotResult.bind(this), "3v3", "4v4");
         }
     }
 
@@ -35,6 +36,17 @@ class RoomState3v3 extends RoomState {
             this.replaceLeavingPlayer(player);
         }  
     } 
+
+    onTeamVictory(): void {
+        if (this.room.players.length > 7) {
+            this.swapState(new RoomState4v4(this.room));
+        } 
+    }
+
+    onBallotResult(result: string): void {
+        if (result === "4v4") 
+            this.swapState(new RoomState4v4(this.room));
+    }
 
     saveGameKicks(kicks: string): void {
         writeCSV(kicks, "xG3v3");

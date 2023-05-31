@@ -34,6 +34,8 @@ class RoomStateWaiting extends RoomState {
     onPlayerLeave(player: Player): void {
     }
 
+    onTeamVictory(): void {}
+
     saveGameKicks(kicks: string): void {
         writeCSV(kicks, "xGtest");
     }

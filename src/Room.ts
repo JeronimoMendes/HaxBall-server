@@ -1,6 +1,7 @@
 import Player from './Player'
 import Kick from './Kick';
 import CommandFactory from './commands/CommandFactory';
+import { Ballot } from './votes/ballot';
 import { drawPlayersOnTeams, Log } from './utils'
 import { colors } from './style'
 import RoomState from './states/RoomState';
@@ -17,6 +18,7 @@ class Room {
     winningTeam: Player[] = [];
     gameKicks: Kick[] = [];
     currentGameID: string  = uuidv4();
+    currentBallot: Ballot | null = null;
 
     constructor(haxRoom: RoomObject) {
         this.haxRoom = haxRoom;
@@ -79,7 +81,9 @@ class Room {
                 const player = this.getPlayerByName(haxPlayer.name);
                 if (!player) return false;
 
-                const command = CommandFactory.createCommand(message, player);
+                const commandName = message.split(" ")[0];
+                const commandArgs = message.split(" ").slice(1);
+                const command = CommandFactory.createCommand(commandName, commandArgs, player, this);
                 if (command) {
                     command.execute();
                 } else {
@@ -140,6 +144,8 @@ class Room {
 
         this.state.saveGameKicks(this.gameKicksToCSV());
         this.gameKicks = [];
+
+        this.state.onTeamVictory();
     }
 
     onGameStart(): void {
@@ -184,6 +190,10 @@ class Room {
             csv += kick.toCSV() + "\n";
         });
         return csv;
+    }
+
+    sendAnnouncement(message: string, color?: number, style?: string, size?: number): void {
+        this.haxRoom.sendAnnouncement(message, undefined, color, style, size);
     }
 };
 

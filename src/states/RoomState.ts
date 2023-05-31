@@ -13,6 +13,7 @@ abstract class RoomState {
     abstract onPlayerJoin(): void;
     abstract onPlayerLeave(player: Player): void;
     abstract saveGameKicks(kicks: string): void;
+    abstract onTeamVictory(): void;
 
     replaceLeavingPlayer(player: Player): void {
         const team = player.team;

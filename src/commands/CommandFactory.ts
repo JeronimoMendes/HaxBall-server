@@ -1,11 +1,12 @@
-import { MeCommand, QuitCommand, AboutCommand, HelpCommand } from "./Command";
+import { MeCommand, QuitCommand, AboutCommand, HelpCommand, VoteCommand } from "./Command";
 import Player from "../Player";
+import Room from "../Room";
 
 class CommandFactory {
-    constructor() {
+    constructor(room: Room) {
     }
 
-    static createCommand(commandName: string, invoker: Player) {
+    static createCommand(commandName: string, args: string[], invoker: Player, room: Room) {
         switch (commandName) {
             case "me":
                 return new MeCommand(invoker);
@@ -15,6 +16,12 @@ class CommandFactory {
                 return new AboutCommand(invoker);
             case "help":
                 return new HelpCommand(invoker);
+            case "vote":
+                if (room.currentBallot === null) {
+                    invoker.sendMessage("There is no voting going on right now!");
+                    return null;
+                }
+                return new VoteCommand(invoker, args, room.currentBallot);
             default:
                 return null;
         }
