@@ -24,6 +24,7 @@ class Player {
     private _wins: number = 0
     private _losses: number = 0
     private _team: number
+    private _afk: boolean = false
     
     constructor(haxPlayer: PlayerObject, room: RoomObject) {
         this.id = haxPlayer.id
@@ -110,6 +111,20 @@ class Player {
 
     get isAdmin(): boolean {
         return this._isAdmin
+    }
+
+    set afk(afk: boolean) {
+        // send to spectator 
+        if (afk) {
+            this.team = 0;
+            this._afk = true;
+        } else {
+            this._afk = false;
+        }
+    }
+
+    get afk(): boolean {
+        return this._afk;
     }
 
     serialize(): PlayerSerialized {

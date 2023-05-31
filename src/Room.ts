@@ -13,6 +13,7 @@ class Room {
     state: RoomState;
     haxRoom: RoomObject;
     players: Player[] = [];
+    afkPlayers: Player[] = [];
     previousKicker: Player | null = null;
     kicker: Player | null = null;
     winningTeam: Player[] = [];
@@ -181,7 +182,10 @@ class Room {
     }
 
     getPlayerByName(name: string): Player | undefined {
-        return this.players.find((player) => player.name == name);
+        let player = this.players.find((player) => player.name == name);
+        if (player) return player;
+
+        return this.afkPlayers.find((player) => player.name == name);
     }
 
     gameKicksToCSV(): string {
@@ -194,6 +198,20 @@ class Room {
 
     sendAnnouncement(message: string, color?: number, style?: string, size?: number): void {
         this.haxRoom.sendAnnouncement(message, undefined, color, style, size);
+    }
+
+    setPlayerAFK(player: Player): void {
+        this.players = this.players.filter((p) => p.name != player.name);
+        player.afk = true;
+        this.afkPlayers.push(player);
+        this.state.onPlayerLeave(player);
+    }
+
+    setPlayerActive(player: Player): void {
+        this.afkPlayers = this.afkPlayers.filter((p) => p.name != player.name);
+        player.afk = false;
+        this.players.push(player);
+        this.state.onPlayerJoin();
     }
 };
 

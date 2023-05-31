@@ -1,5 +1,6 @@
 import Player from "../Player";
 import { Ballot } from "../votes/ballot";
+import Room from "../Room";
 
 abstract class Command {
     _invoker: Player
@@ -15,6 +16,8 @@ class HelpCommand extends Command {
     execute(): void {
         const message: string = "Available commands:\n" +
             "!me - get your stats\n" +
+            "!vote <choice>- vote for the current ballot\n" +
+            "!afk - toggle afk mode\n" +
             "!about - get info about this server\n" +
             "!bb - quit the game\n" +
             "!help - get this message";
@@ -70,10 +73,31 @@ class VoteCommand extends Command {
     }
 }
 
+
+class AFKCommand extends Command {
+    _room: Room
+    constructor(invoker: Player, room: Room) {
+        super(invoker);
+        this._room = room;
+    }
+
+    execute(): void {
+        if (this._invoker.afk === true) {
+            this._room.setPlayerActive(this._invoker);
+            this._invoker.sendMessage("You are no longer AFK!");
+        } else {
+            this._room.setPlayerAFK(this._invoker)
+            this._invoker.sendMessage("You are now AFK!");
+        }
+    }
+}
+
+
 export {
     MeCommand,
     QuitCommand,
     AboutCommand,
     HelpCommand,
     VoteCommand,
+    AFKCommand,
 };
