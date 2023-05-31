@@ -1,4 +1,4 @@
-import { MeCommand, QuitCommand, AboutCommand, HelpCommand, VoteCommand, AFKCommand } from "./Command";
+import { MeCommand, QuitCommand, AboutCommand, HelpCommand, VoteCommand, AFKCommand, ListAFKCommand } from "./Command";
 import Player from "../Player";
 import Room from "../Room";
 
@@ -24,6 +24,8 @@ class CommandFactory {
                 return new VoteCommand(invoker, args, room.currentBallot);
             case "afk":
                 return new AFKCommand(invoker, room);
+            case "afks":
+                return new ListAFKCommand(invoker, room);
             default:
                 return null;
         }

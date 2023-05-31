@@ -18,6 +18,7 @@ class HelpCommand extends Command {
             "!me - get your stats\n" +
             "!vote <choice>- vote for the current ballot\n" +
             "!afk - toggle afk mode\n" +
+            "!afks - list all afk players\n" +
             "!about - get info about this server\n" +
             "!bb - quit the game\n" +
             "!help - get this message";
@@ -93,6 +94,28 @@ class AFKCommand extends Command {
 }
 
 
+class ListAFKCommand extends Command {
+    _room: Room
+    constructor(invoker: Player, room: Room) {
+        super(invoker);
+        this._room = room;
+    }
+
+    execute(): void {
+        if (this._room.afkPlayers.length === 0) {
+            this._invoker.sendMessage("There are no AFK players!");
+            return;
+        }
+
+        let message: string = "AFK players:\n";
+        this._room.afkPlayers.forEach((player: Player) => {
+            message += player.name + "\n";
+        });
+
+        this._invoker.sendMessage(message);
+    }
+}
+
 export {
     MeCommand,
     QuitCommand,
@@ -100,4 +123,5 @@ export {
     HelpCommand,
     VoteCommand,
     AFKCommand,
+    ListAFKCommand,
 };
