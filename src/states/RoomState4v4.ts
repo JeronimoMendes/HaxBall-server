@@ -7,16 +7,17 @@ import { Log, writeCSV } from "../utils";
 
 class RoomState4v4 extends RoomState {
     constructor(room: Room) {
-        if (room.players.length < 8)
-            throw new Error("Not enough players to start 4v4");
+        super(room);
+        if (room.players.length < 8) {
+            this.swapState(new RoomState3v3(room));
+        }
 
         Log.info("4v4 started!")
-        super(room);
         this.swapStadium('futsal_4v4');
         this.room.startGame();
     }
 
-    onPlayerJoin(): void {
+    onPlayerJoin(player: Player): void {
     }
 
     onPlayerLeave(player: Player): void {
@@ -34,6 +35,9 @@ class RoomState4v4 extends RoomState {
 
     saveGameKicks(kicks: string): void {
         writeCSV(kicks, "xG4v4");
+    }
+
+    onBallotResult(result: string): void {
     }
 }
 

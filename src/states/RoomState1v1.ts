@@ -9,21 +9,25 @@ import { Log, writeCSV } from "../utils";
 
 class RoomState1v1 extends RoomState {
     constructor(room: Room) {
-        if (room.players.length < 2)
-            throw new Error("Not enough players to start 1v1: " + room.players.length);
+        super(room);
+        if (room.players.length < 2) {
+            this.swapState(new RoomStateWaiting(this.room));
+        }
 
-        if (room.players.length > 3)
-            throw new Error("Too many players to start 1v1: " + room.players.length);
+        if (room.players.length > 3) {
+            this.swapState(new RoomState2v2(this.room));
+        }
 
         Log.info("1v1 started!")
-        super(room);
         this.swapStadium('futsal_1v1');
         this.room.startGame();
     }
     
-    onPlayerJoin(): void {
+    onPlayerJoin(player: Player): void {
         if (this.room.players.length > 3) {
-            this.room.currentBallot = new ChangeGameModeBallot(this.room, this.onBallotResult.bind(this), "1v1", "2v2");
+            if (!this.startChangeModeBallot('1v1', '2v2')) {
+                player.sendMessage(this.room.currentBallot!.initialMessage)
+            }
         }
     }
 

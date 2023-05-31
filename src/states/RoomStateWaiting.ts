@@ -39,6 +39,9 @@ class RoomStateWaiting extends RoomState {
     saveGameKicks(kicks: string): void {
         writeCSV(kicks, "xGtest");
     }
+
+    onBallotResult(result: string): void {
+    }
 }
 
 export default RoomStateWaiting;

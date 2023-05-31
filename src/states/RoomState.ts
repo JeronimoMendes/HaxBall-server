@@ -2,6 +2,7 @@ import Room from "../Room";
 import Player from "../Player";
 import { loadMap } from "../utils";
 import { colors } from "../style";
+import { ChangeGameModeBallot } from "../votes/ballot";
 
 abstract class RoomState {
     protected room: Room;
@@ -10,10 +11,11 @@ abstract class RoomState {
         this.room = room;
     }
 
-    abstract onPlayerJoin(): void;
+    abstract onPlayerJoin(player: Player): void;
     abstract onPlayerLeave(player: Player): void;
     abstract saveGameKicks(kicks: string): void;
     abstract onTeamVictory(): void;
+    abstract onBallotResult(result: string): void;
 
     replaceLeavingPlayer(player: Player): void {
         const team = player.team;
@@ -46,6 +48,14 @@ abstract class RoomState {
     swapStadium(stadium: string): void {
         this.room.endGame();
         this.room.haxRoom.setCustomStadium(loadMap(stadium));
+    }
+
+    startChangeModeBallot(currentGameMode: string, nextGameMode: string): boolean {
+        // if there's an ongoing ballot don't start another one
+        if (this.room.currentBallot) return false;
+
+        this.room.currentBallot = new ChangeGameModeBallot(this.room, this.onBallotResult.bind(this), currentGameMode, nextGameMode);
+        return true;
     }
 }
 

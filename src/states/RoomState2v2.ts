@@ -9,22 +9,26 @@ import { ChangeGameModeBallot } from "../votes/ballot";
 
 class RoomState2v2 extends RoomState {
     constructor(room: Room) {
-        if (room.players.length < 4)
-            throw new Error("Not enough players to start 2v2: " + room.players.length);
+        super(room);
+        if (room.players.length < 4) {
+            this.swapState(new RoomState1v1(room));
+        }
 
-        if (room.players.length > 5)
-            throw new Error("Too many players to start 2v2: " + room.players.length);
+        if (room.players.length > 5) {
+            this.swapState(new RoomState3v3(room));
+        }
 
         Log.info("2v2 started!")
-        super(room);
         this.swapStadium('futsal_2v2')
         this.room.startGame();
     }
 
-    onPlayerJoin(): void {
+    onPlayerJoin(player: Player): void {
         // if there are more than 7 player, change to 3v3
         if (this.room.players.length > 5) {
-            this.room.currentBallot = new ChangeGameModeBallot(this.room, this.onBallotResult.bind(this), "2v2", "3v3");
+            if (!this.startChangeModeBallot('2v2', '3v3')) {
+                player.sendMessage(this.room.currentBallot!.initialMessage)
+            }
         }
     }
 

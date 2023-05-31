@@ -6,6 +6,7 @@ abstract class Ballot {
     _room: Room;
     _callback: (result: string) => void;
     _votes: Map<Player, string> = new Map();
+    initialMessage: string = "";
 
     constructor(room: Room, callback: (result: string) => void) {
         this._room = room;
@@ -26,9 +27,10 @@ class ChangeGameModeBallot extends Ballot {
         super(room, callback);
         this._gameMode1 = gameMode1;
         this._gameMode2 = gameMode2;
+        this.initialMessage = `A voting will start to determine if we continue playing the current ${this._gameMode1} game or if we start a new ${this._gameMode2}`;
 
         this._room.sendAnnouncement(
-            `A voting will start to determine if we continue playing the current ${this._gameMode1} game or if we start a new ${this._gameMode2}`,
+            this.initialMessage,
             colors.red,
             "bold",
             0
@@ -59,6 +61,17 @@ class ChangeGameModeBallot extends Ballot {
         player.sendMessage("Your vote was registered as: " + vote);
 
         if (this._votes1 > this._room.players.length / 2 || this._votes2 > this._room.players.length / 2 || this._votes.size === this._room.players.length) {
+            if (this._votes1 === this._votes2) { 
+                this._room.sendAnnouncement(
+                    `The voting is over, but there was a tie, so we will continue playing the current ${this._gameMode1} game`,
+                    colors.red,
+                    "bold",
+                    0
+                );
+                this._room.currentBallot = null;
+                return;
+            }
+
             const winner = this.determineWinner();
 
             const nrWinnerVotes = winner === this._gameMode1 ? this._votes1 : this._votes2;
@@ -69,6 +82,7 @@ class ChangeGameModeBallot extends Ballot {
                 0
             );
 
+            this._room.currentBallot = null;
             this._callback(winner);
         }
     }

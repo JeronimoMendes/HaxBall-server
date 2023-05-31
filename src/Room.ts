@@ -37,7 +37,6 @@ class Room {
 
         this.haxRoom.onPlayerLeave = (player: PlayerObject) => {
             let oldPlayer: Player = new Player(player, this.haxRoom);
-            this.players = this.players.filter((player) => player.name != oldPlayer.name);
             this.onPlayerLeave(oldPlayer);
         }
 
@@ -81,7 +80,7 @@ class Room {
 
                 const player = this.getPlayerByName(haxPlayer.name);
                 if (!player) return false;
-
+                
                 const commandName = message.split(" ")[0];
                 const commandArgs = message.split(" ").slice(1);
                 const command = CommandFactory.createCommand(commandName, commandArgs, player, this);
@@ -102,13 +101,16 @@ class Room {
 
     onPlayerJoin(player: Player): void {
         Log.info(player.name + " just joined!");
-        this.state.onPlayerJoin();
+        this.state.onPlayerJoin(player);
     }
 
-    onPlayerLeave(player: Player): void {
-        Log.info(player.name + " just left!");
-        player.saveStats();
-        this.state.onPlayerLeave(player);
+    onPlayerLeave(leavingPlayer: Player): void {
+        Log.info(leavingPlayer.name + " just left!");
+        Log.info(leavingPlayer.toString())
+        leavingPlayer.saveStats();
+        this.players = this.players.filter((player) => player.name != leavingPlayer.name);
+        this.afkPlayers = this.afkPlayers.filter((player) => player.name != leavingPlayer.name);
+        this.state.onPlayerLeave(leavingPlayer);
     }
 
     onPlayerKick(player: Player): void {
@@ -202,16 +204,16 @@ class Room {
 
     setPlayerAFK(player: Player): void {
         this.players = this.players.filter((p) => p.name != player.name);
-        player.afk = true;
         this.afkPlayers.push(player);
         this.state.onPlayerLeave(player);
+        player.afk = true;
     }
 
     setPlayerActive(player: Player): void {
         this.afkPlayers = this.afkPlayers.filter((p) => p.name != player.name);
         player.afk = false;
         this.players.push(player);
-        this.state.onPlayerJoin();
+        this.state.onPlayerJoin(player);
     }
 };
 
