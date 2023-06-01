@@ -3,7 +3,7 @@ import Kick from './Kick';
 import CommandFactory from './commands/CommandFactory';
 import { Ballot } from './votes/ballot';
 import { drawPlayersOnTeams, Log } from './utils'
-import { colors } from './style'
+import { colors, kits, Kit } from './style'
 import RoomState from './states/RoomState';
 import RoomStateWaiting from './states/RoomStateWaiting';
 import { v4 as uuidv4 } from 'uuid';
@@ -27,6 +27,9 @@ class Room {
 
         this.haxRoom.setScoreLimit(3);
         this.haxRoom.setTimeLimit(3);
+
+        this.changeTeamColors(kits.redDefault, 1);
+        this.changeTeamColors(kits.blueDefault, 2);
 
         this.haxRoom.onPlayerJoin = (player: PlayerObject) => {
             let newPlayer = new Player(player, this.haxRoom);
@@ -120,7 +123,7 @@ class Room {
         this.gameKicks.push(newKick);
     }
 
-    onTeamGoal(team: number): void {
+    onTeamGoal(team: TeamID): void {
         if (this.kicker == null) return;
 
         if (this.kicker.team == team) {
@@ -214,6 +217,10 @@ class Room {
         player.afk = false;
         this.players.push(player);
         this.state.onPlayerJoin(player);
+    }
+
+    changeTeamColors(kit: Kit, team: TeamID) {
+        this.haxRoom.setTeamColors(team, kit.angle, kit.textColor, kit.colors);
     }
 };
 
