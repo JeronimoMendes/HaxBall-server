@@ -39,7 +39,8 @@ class Room {
         }
 
         this.haxRoom.onPlayerLeave = (player: PlayerObject) => {
-            let oldPlayer: Player = new Player(player, this.haxRoom);
+            const oldPlayer = this.getPlayerByName(player.name);
+            if (!oldPlayer) return;
             this.onPlayerLeave(oldPlayer);
         }
 
