@@ -5,7 +5,7 @@ import RoomState4v4 from "./RoomState4v4";
 import Room from "../Room";
 import Player from "../Player";
 import { Log, writeCSV } from "../utils";
-import { ChangeGameModeBallot } from "../votes/ballot";
+import { colors } from "../style";
 
 class RoomState3v3 extends RoomState {
     constructor(room: Room) {
@@ -27,7 +27,7 @@ class RoomState3v3 extends RoomState {
         // if there are more than 11 player, change to 4v4
         if (this.room.players.length > 7) {
             if (!this.startChangeModeBallot('3v3', '4v4')) {
-                player.sendMessage(this.room.currentBallot!.initialMessage)
+                player.sendMessage(this.room.currentBallot!.initialMessage, colors.red, "bold")
             }
         }
     }

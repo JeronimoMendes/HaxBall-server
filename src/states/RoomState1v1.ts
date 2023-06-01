@@ -4,8 +4,8 @@ import RoomState2v2 from "./RoomState2v2";
 
 import Room from "../Room";
 import Player from "../Player";
-import { ChangeGameModeBallot } from "../votes/ballot";
 import { Log, writeCSV } from "../utils";
+import { colors } from "../style";
 
 class RoomState1v1 extends RoomState {
     constructor(room: Room) {
@@ -26,7 +26,7 @@ class RoomState1v1 extends RoomState {
     onPlayerJoin(player: Player): void {
         if (this.room.players.length > 3) {
             if (!this.startChangeModeBallot('1v1', '2v2')) {
-                player.sendMessage(this.room.currentBallot!.initialMessage)
+                player.sendMessage(this.room.currentBallot!.initialMessage, colors.red, "bold")
             }
         }
     }

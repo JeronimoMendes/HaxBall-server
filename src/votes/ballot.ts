@@ -58,6 +58,16 @@ class ChangeGameModeBallot extends Ballot {
         this._votes.set(player, vote);
         vote === this._gameMode1 ? this._votes1++ : this._votes2++;
 
+        const admins: Player[] = this._room.players.filter(player => player.isAdmin);
+        admins.forEach(admin => {
+            if (player !== admin) {
+                admin.sendMessage(
+                    `${player.name} voted for ${vote}\n${this._votes1} votes for ${this._gameMode1}\n${this._votes2} votes for ${this._gameMode2}`, 
+                    colors.yellow
+                );
+            }
+        });
+
         player.sendMessage("Your vote was registered as: " + vote);
 
         if (this._votes1 > this._room.players.length / 2 || this._votes2 > this._room.players.length / 2 || this._votes.size === this._room.players.length) {
