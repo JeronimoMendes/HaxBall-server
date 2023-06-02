@@ -6,6 +6,7 @@ import Room from "../Room";
 import Player from "../Player";
 import { Log, writeCSV } from "../utils";
 import { colors } from "../style";
+import { PitchDimensions, dimensions } from "./stadiums";
 
 class RoomState2v2 extends RoomState {
     constructor(room: Room) {
@@ -54,6 +55,10 @@ class RoomState2v2 extends RoomState {
 
     saveGameKicks(kicks: string): void {
         writeCSV(kicks, "xG2v2");
+    }
+
+    getPitchDimensions(): PitchDimensions {
+        return dimensions['2v2'];
     }
 }
 

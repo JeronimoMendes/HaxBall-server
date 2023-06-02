@@ -4,6 +4,7 @@ import RoomState1v1 from "./RoomState1v1";
 import Room from "../Room";
 import Player from "../Player";
 import { Log, loadMap, writeCSV } from "../utils";
+import { PitchDimensions, dimensions } from "./stadiums";
 
 class RoomStateWaiting extends RoomState {
     constructor(room: Room, initializing = false) {
@@ -41,6 +42,10 @@ class RoomStateWaiting extends RoomState {
     }
 
     onBallotResult(result: string): void {
+    }
+
+    getPitchDimensions(): PitchDimensions {
+        return dimensions['1v1'];
     }
 }
 

@@ -7,6 +7,7 @@ import { colors, kits, Kit } from './style'
 import RoomState from './states/RoomState';
 import RoomStateWaiting from './states/RoomStateWaiting';
 import { v4 as uuidv4 } from 'uuid';
+import { PitchDimensions } from "./states/stadiums";
 
 
 class Room {
@@ -222,6 +223,10 @@ class Room {
 
     changeTeamColors(kit: Kit, team: TeamID) {
         this.haxRoom.setTeamColors(team, kit.angle, kit.textColor, kit.colors);
+    }
+
+    getPitchDimensions(): PitchDimensions {
+        return this.state.getPitchDimensions();
     }
 };
 

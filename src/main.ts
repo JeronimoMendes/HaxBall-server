@@ -19,6 +19,7 @@ HaxballJS.then((HBInit) => {
     public: true,
     noPlayer: true,
     token: TOKEN, // Required
+    password: "123",
   });
 
   const room = new Room(roomHaxBall);

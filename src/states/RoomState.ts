@@ -3,6 +3,7 @@ import Player from "../Player";
 import { loadMap } from "../utils";
 import { colors } from "../style";
 import { ChangeGameModeBallot } from "../votes/ballot";
+import { PitchDimensions } from "./stadiums";
 
 abstract class RoomState {
     protected room: Room;
@@ -16,6 +17,7 @@ abstract class RoomState {
     abstract saveGameKicks(kicks: string): void;
     abstract onTeamVictory(): void;
     abstract onBallotResult(result: string): void;
+    abstract getPitchDimensions(): PitchDimensions
 
     replaceLeavingPlayer(player: Player): void {
         const team = player.team;
