@@ -11,6 +11,9 @@ interface PlayerSerialized {
     wins: number,
     losses: number
     isAdmin: boolean
+    shots?: number
+    saves?: number
+    passes?: number
 }
 
 class Player {
@@ -20,6 +23,9 @@ class Player {
     private _isAdmin: boolean = false
     private _goals: number = 0
     assists: number = 0
+    shots: number = 0
+    saves: number = 0
+    passes: number = 0
     private _ownGoals: number = 0
     private _wins: number = 0
     private _losses: number = 0
@@ -48,6 +54,9 @@ class Player {
             this._wins = serialized.wins
             this._losses = serialized.losses
             this._isAdmin = serialized.isAdmin
+            this.shots = serialized.shots || 0
+            this.saves = serialized.saves || 0
+            this.passes = serialized.passes || 0
         }
 
         if (this._isAdmin) {
@@ -127,6 +136,22 @@ class Player {
         return this._afk;
     }
 
+    get totalGames(): number {
+        return this._wins + this._losses
+    }
+
+    get shotsPerGame(): string {
+        return (this.shots / this.totalGames).toFixed(2)
+    }
+
+    get savesPerGame(): string {
+        return (this.saves / this.totalGames).toFixed(2)
+    }
+
+    get passesPerGame(): string {
+        return (this.passes / this.totalGames).toFixed(2)
+    }
+
     serialize(): PlayerSerialized {
         return {
             goals: this._goals,
@@ -134,12 +159,22 @@ class Player {
             ownGoals: this._ownGoals,
             wins: this._wins,
             losses: this._losses,
-            isAdmin: this._isAdmin
+            isAdmin: this._isAdmin,
+            shots: this.shots,
+            saves: this.saves,
+            passes: this.passes
         }
     }
 
     toString(): string {
-        return `Goals: ${this._goals}, Assists: ${this.assists}, Own Goals: ${this._ownGoals}, Wins: ${this._wins}, Losses: ${this._losses}`
+        return `Goals: ${this._goals}\n` +
+        `Assists: ${this.assists}\n` +
+        `Own Goals: ${this._ownGoals}\n` + 
+        `Shot p/ game: ${this.shotsPerGame}\n` + 
+        `Saves p/ game: ${this.savesPerGame}\n` + 
+        `Passes p/ game: ${this.passesPerGame}\n` +
+        `Wins: ${this._wins}\n` + 
+        `Losses: ${this._losses}`
     }
 
     saveStats() {

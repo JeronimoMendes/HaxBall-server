@@ -50,6 +50,8 @@ class Kick {
                 } else {
                     previousKick.type = "pass";
                 }
+
+                previousKick.kicker.passes += 1;
             }
         }
     }
@@ -97,7 +99,10 @@ class Kick {
         if (
             crossProduct(vectorBallTopPost, this.ballVelocity) * crossProduct(vectorBallTopPost, vectorBallBottomPost) >= 0 &&
             crossProduct(vectorBallBottomPost, this.ballVelocity) * crossProduct(vectorBallBottomPost, vectorBallTopPost) >= 0
-        ) this.type = "shot";
+        ) {
+            this.type = "shot";
+            this.kicker.shots += 1;
+        }
     }
 
     checkIfKickoff(): void {
@@ -118,8 +123,8 @@ class Kick {
             previousKick.kicker.team != this.kicker.team &&
             this.kickerInsidePenaltyBox()
         ) {
-            this.kicker.sendMessage("Your previous kick was a defense!\n");
             this.type = "defense";
+            this.kicker.saves += 1;
         }
     }
 
