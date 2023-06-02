@@ -17,6 +17,7 @@ class Kick {
     ballPosition: Position;
     ballVelocity: Velocity;
     type: KickType = "normal";
+    timestamp: number = Date.now();
 
     constructor(kicker: Player, room: Room) {
         this.kicker = kicker;
@@ -42,9 +43,14 @@ class Kick {
     }
 
     checkPreviousKickIsPass(): void {
+        const timestampOffset = 2000;
         const previousKick = this.room.gameKicks[this.room.gameKicks.length - 1];
         if (previousKick != null) {
-            if (previousKick.kicker != this.kicker && previousKick.kicker.team == this.kicker.team) {
+            if (
+                previousKick.kicker != this.kicker && 
+                previousKick.kicker.team == this.kicker.team &&
+                this.timestamp - previousKick.timestamp < timestampOffset
+            ) {
                 if (previousKick.type == "defense") {
                     previousKick.type = "defense + pass";
                 } else {
@@ -161,6 +167,7 @@ class Kick {
 
     toCSV(): string {
         let fields = [
+            this.timestamp,
             this.room.currentGameID,
             this.kicker.name,
             this.kicker.team,

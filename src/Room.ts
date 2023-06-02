@@ -111,7 +111,6 @@ class Room {
 
     onPlayerLeave(leavingPlayer: Player): void {
         Log.info(leavingPlayer.name + " just left!");
-        Log.info(leavingPlayer.toString())
         leavingPlayer.saveStats();
         this.players = this.players.filter((player) => player.name != leavingPlayer.name);
         this.afkPlayers = this.afkPlayers.filter((player) => player.name != leavingPlayer.name);
