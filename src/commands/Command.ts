@@ -116,6 +116,67 @@ class ListAFKCommand extends Command {
     }
 }
 
+class MuteCommand extends Command {
+    _room: Room
+    _args: string[]
+    constructor(invoker: Player, room: Room, args: string[]) {
+        super(invoker);
+        this._room = room;
+        this._args = args;
+    }
+
+    execute(): void {
+        if (!this._invoker.isAdmin) {
+            this._invoker.sendMessage("You are not an admin!");
+            return;
+        }
+
+        const playerNameToMute: string = this._args.join(" ");
+        const playerToMute: Player | undefined = this._room.getPlayerByName(playerNameToMute);
+
+        if (playerToMute === undefined) {
+            this._invoker.sendMessage("Player not found!");
+            return;
+        }
+
+        playerToMute.muted = true;
+        this._invoker.sendMessage("Player " + playerToMute.name + " is now muted!");
+    }
+}
+
+
+class MutedCommand extends Command {
+    _room: Room
+
+    constructor(invoker: Player, room: Room) {
+        super(invoker);
+        this._room = room;
+    }
+
+    execute(): void {
+        if (!this._invoker.isAdmin) {
+            this._invoker.sendMessage("You are not an admin!");
+            return;
+        }
+
+        const mutedPlayers: Player[] = this._room.players.filter((player: Player) => {
+            return player.muted;
+        });
+
+        if (mutedPlayers.length === 0) {    
+            this._invoker.sendMessage("There are no muted players!");
+            return;
+        }
+
+        let message: string = "Muted players:\n";
+        mutedPlayers.forEach((player: Player) => {
+            message += player.name + "\n";
+        });
+        
+        this._invoker.sendMessage(message);
+    }
+}
+
 export {
     MeCommand,
     QuitCommand,
@@ -124,4 +185,6 @@ export {
     VoteCommand,
     AFKCommand,
     ListAFKCommand,
+    MuteCommand,
+    MutedCommand,
 };

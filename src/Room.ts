@@ -79,11 +79,13 @@ class Room {
         }
 
         this.haxRoom.onPlayerChat = (haxPlayer, message) => {
+            const player = this.getPlayerByName(haxPlayer.name);
+            if (!player) return false;
+
             if (message.startsWith("!")) {
                 // strip the ! from the message
                 message = message.substring(1);
 
-                const player = this.getPlayerByName(haxPlayer.name);
                 if (!player) return false;
                 
                 const commandName = message.split(" ")[0];
@@ -94,6 +96,11 @@ class Room {
                 } else {
                     player.sendMessage("Unknown command!");
                 }
+                return false;
+            }
+
+            if (player.muted) {
+                player.sendMessage(`${player.name}: ${message}`, colors.white, "normal", 1, false);
                 return false;
             }
             return true;

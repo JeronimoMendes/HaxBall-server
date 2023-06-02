@@ -31,6 +31,7 @@ class Player {
     private _losses: number = 0
     private _team: number
     private _afk: boolean = false
+    muted: boolean = false
     
     constructor(haxPlayer: PlayerObject, room: RoomObject) {
         this.id = haxPlayer.id
@@ -190,8 +191,8 @@ class Player {
         })
     }
 
-    sendMessage(message: string, color?: number | undefined, style?: string | undefined, sound: number = 1) {
-        const formattedMessage = "[Server] " + message;
+    sendMessage(message: string, color?: number | undefined, style?: string | undefined, sound: number = 1, formatted: boolean = true) {
+        const formattedMessage: string = formatted ? "[Server] " + message : message;
         this._room.sendAnnouncement(formattedMessage, this.id, color, style, sound)
     }
 
