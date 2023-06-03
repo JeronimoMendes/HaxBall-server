@@ -1,6 +1,7 @@
-import Player from "../Player";
+import Player, { PlayerStats } from "../Player";
 import { Ballot } from "../votes/ballot";
 import Room from "../Room";
+import { Log } from "../utils";
 
 abstract class Command {
     _invoker: Player
@@ -15,7 +16,7 @@ abstract class Command {
 class HelpCommand extends Command {
     execute(): void {
         const message: string = "Available commands:\n" +
-            "!me - get your stats\n" +
+            "!me <game mode> - get your stats, leave game mode empty to list global stats\n" +
             "!vote <choice>- vote for the current ballot\n" +
             "!afk - toggle afk mode\n" +
             "!afks - list all afk players\n" +
@@ -27,11 +28,40 @@ class HelpCommand extends Command {
 }
 
 class MeCommand extends Command {
+    _args: string[]
+    constructor(invoker: Player, args: string[]) {
+        super(invoker)
+        this._args = args
+    }
+
     execute(): void {
         // get stats from player
-        const stats: string = this._invoker.toString()
+        if (this._args.length > 1) {
+            this._invoker.sendMessage("Please specify only one game mode!");
+            return;
+        }
 
-        this._invoker.sendMessage("Your stats: \n" + stats);
+        this._invoker.getStats(this._args[0] || undefined)
+            .then((stats: PlayerStats | null) => {
+                if (stats === null) {
+                    Log.error(`Could not get stats for ${this._invoker.name}`);
+                    this._invoker.sendMessage("Could not get stats for this player!");
+                    return;
+                }
+
+                let formattedMessage: string = this._args[0] ? `Your stats for ${this._args[0]}:\n` : `Your global stats:\n`;
+                const totalGames: number = stats.wins + stats.losses;
+                formattedMessage += `Goals: ${stats.goals}\n` +
+                `Assists: ${stats.assists}\n` +
+                `Own Goals: ${stats.ownGoals}\n` +
+                `Shot p/ game: ${(stats.shots / totalGames).toPrecision(2)}\n` +
+                `Saves p/ game: ${(stats.saves / totalGames).toPrecision(2)}\n` +
+                `Passes p/ game: ${(stats.passes / totalGames).toPrecision(2)}\n` +
+                `Wins: ${stats.wins}\n` +
+                `Losses: ${stats.losses}`
+
+                this._invoker.sendMessage(formattedMessage);
+            })
     }
 }
 

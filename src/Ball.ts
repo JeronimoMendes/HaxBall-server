@@ -1,5 +1,5 @@
 import Room from "./Room";
-import { Position, Velocity } from "./Common";
+import { PositionBall, Velocity } from "./Common";
 
 class Ball {
     _ball: DiscPropertiesObject = {} as DiscPropertiesObject;
@@ -15,7 +15,7 @@ class Ball {
         }
     }
 
-    get position(): Position {
+    get position(): PositionBall {
         return { x: this._ball.x, y: this._ball.y };
     }
 

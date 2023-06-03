@@ -1,7 +1,10 @@
 import Player from "./Player";
 import Room from "./Room";
 import Ball from "./Ball";
-import { Position, Velocity, crossProduct } from "./Common";
+import { Position, PositionBall, Velocity, crossProduct } from "./Common";
+import { createKick, incrementPasses, incrementSaves, incrementShots, updateKick } from "./db/db";
+import { v4 as uuidv4 } from "uuid";
+import { Log } from "./utils";
 
 
 type KickType = "kickoff" | "pass" | "shot" | "defense" | "defense + pass" | "normal";
@@ -10,16 +13,18 @@ class Kick {
     kicker: Player;
     kickerPosition: Position;
     room: Room;
-    goal: boolean = false;
+    _goal: boolean = false;
     positionsTeam: Position[] = [];
     positionsOpponent: Position[] = [];
     ball: Ball;
-    ballPosition: Position;
+    ballPosition: PositionBall;
     ballVelocity: Velocity;
     type: KickType = "normal";
     timestamp: number = Date.now();
+    gameID: string;
+    id: string = uuidv4();
 
-    constructor(kicker: Player, room: Room) {
+    constructor(kicker: Player, room: Room, gameID: string) {
         this.kicker = kicker;
         this.kickerPosition = kicker.position;
         this.room = room;
@@ -28,16 +33,35 @@ class Kick {
         this.ballVelocity = this.ball.velocity;
         this.positionsTeam = this.getTeamPositions(kicker.team);
         this.positionsOpponent = this.getTeamPositions(kicker.team == 1 ? 2 : 1);
+        this.gameID = gameID;
 
         this.checkPreviousKickIsPass();
         this.checkIfShot(); 
         this.checkIfKickoff();
         this.checkIfDefense();
+
+        this.saveToDB();
+    }
+
+    get goal(): boolean {
+        return this._goal;
+    }
+
+    set goal(value: boolean) {
+        this._goal = value;
+        Log.debug(`Goal: ${value}`);
+        updateKick(this);
     }
 
     getTeamPositions(team: number): Position[] {
         const teammates = this.room.players.filter((player) => player.team == team && player.id != this.kicker.id);
-        const positions = teammates.map((player) => player.position);
+        const positions = teammates.map((player) => {
+            return {
+                x: player.position.x,
+                y: player.position.y,
+                player: player,
+            };
+        });
 
         return positions;
     }
@@ -57,7 +81,7 @@ class Kick {
                     previousKick.type = "pass";
                 }
 
-                previousKick.kicker.passes += 1;
+                incrementPasses(previousKick.kicker, this.room.state.toString());
             }
         }
     }
@@ -107,7 +131,7 @@ class Kick {
             crossProduct(vectorBallBottomPost, this.ballVelocity) * crossProduct(vectorBallBottomPost, vectorBallTopPost) >= 0
         ) {
             this.type = "shot";
-            this.kicker.shots += 1;
+            incrementShots(this.kicker, this.room.state.toString());
         }
     }
 
@@ -130,7 +154,7 @@ class Kick {
             this.kickerInsidePenaltyBox()
         ) {
             this.type = "defense";
-            this.kicker.saves += 1;
+            incrementSaves(this.kicker, this.room.state.toString());
         }
     }
 
@@ -165,29 +189,10 @@ class Kick {
         return false;
     }
 
-    toCSV(): string {
-        let fields = [
-            this.timestamp,
-            this.room.currentGameID,
-            this.kicker.name,
-            this.kicker.team,
-            this.kickerPosition.x,
-            this.kickerPosition.y,
-            this.ballPosition.x,
-            this.ballPosition.y,
-            this.ballVelocity.x,
-            this.ballVelocity.y,
-            this.goal
-        ]
-
-        if (this.positionsTeam.length > 0) 
-            this.positionsTeam.map((position) => fields.push(position.x, position.y));
-
-        if (this.positionsOpponent.length > 0)
-            this.positionsOpponent.map((position) => fields.push(position.x, position.y));
-
-        return fields.join(",");
+    saveToDB(): void {
+        createKick(this)
     }
+
 }
 
 export default Kick;

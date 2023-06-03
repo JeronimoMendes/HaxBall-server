@@ -1,9 +1,17 @@
+import Player from "./Player";
+
 type Vector = {
     x: number;
     y: number;
 };
 
-export type Position = Vector;
+export type Position = {
+    x: number;
+    y: number;
+    player: Player;
+};
+
+export type PositionBall = Vector;
 
 export type Velocity = Vector;
 

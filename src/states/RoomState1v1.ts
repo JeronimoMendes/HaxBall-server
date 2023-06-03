@@ -59,6 +59,10 @@ class RoomState1v1 extends RoomState {
     getPitchDimensions(): PitchDimensions {
         return dimensions['1v1'];
     }
+
+    toString(): string {
+        return "1v1";
+    }
 }
 
 export default RoomState1v1;

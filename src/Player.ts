@@ -1,19 +1,23 @@
-import * as fs from 'fs';
 import { Position } from './Common';
 import { Log, inDevelopment } from './utils';
+import { getPlayer, createPlayer, getPlayerStats } from './db/db';
 
-const statsPath: string = inDevelopment ? `./stats-dev/players.json` : `./stats/players.json`
 
 interface PlayerSerialized {
+    name: string,
+    isAdmin: boolean,
+    muted: boolean
+}
+
+interface PlayerStats {
     goals: number,
     assists: number,
-    ownGoals: number
+    shots: number,
+    saves: number,
+    passes: number,
+    ownGoals: number,
     wins: number,
     losses: number
-    isAdmin: boolean
-    shots?: number
-    saves?: number
-    passes?: number
 }
 
 class Player {
@@ -39,30 +43,15 @@ class Player {
         this._team = haxPlayer.team
         this._room = room
 
-        // fetch stats from file
-        let serialized: PlayerSerialized | null = null;
-
-        const statsObject = fs.readFileSync(statsPath, 'utf-8')
-        let readPlayer = JSON.parse(statsObject)[this.name]
-        if (readPlayer !== undefined) {
-            serialized = readPlayer
-        }
-
-        if (serialized !== null) {
-            this._goals = serialized.goals
-            this.assists = serialized.assists
-            this._ownGoals = serialized.ownGoals
-            this._wins = serialized.wins
-            this._losses = serialized.losses
-            this._isAdmin = serialized.isAdmin
-            this.shots = serialized.shots || 0
-            this.saves = serialized.saves || 0
-            this.passes = serialized.passes || 0
-        }
-
-        if (this._isAdmin) {
-            this._room.setPlayerAdmin(this.id, true)
-        }
+        getPlayer(this.name).then((res: PlayerSerialized) => {
+            Log.debug(`Player ${this.name} found in db`)
+            this.isAdmin = res.isAdmin
+            this.muted = res.muted
+        }, () => {
+            // create player in db
+            Log.debug(`Player ${this.name} not found in db`)
+            createPlayer(this)
+        })
     }
 
     get haxPlayer(): PlayerObject {
@@ -111,11 +100,15 @@ class Player {
     }
 
     get position(): Position {
-        return this.haxPlayer.position;
+        return {
+            x: this.haxPlayer.position.x,
+            y: this.haxPlayer.position.y,
+            player: this,
+        }
     }
 
     set isAdmin(isAdmin: boolean) {
-        this.isAdmin = isAdmin
+        this._isAdmin = isAdmin
         this._room.setPlayerAdmin(this.id, isAdmin)
     }
 
@@ -153,20 +146,6 @@ class Player {
         return (this.passes / this.totalGames).toFixed(2)
     }
 
-    serialize(): PlayerSerialized {
-        return {
-            goals: this._goals,
-            assists: this.assists,
-            ownGoals: this._ownGoals,
-            wins: this._wins,
-            losses: this._losses,
-            isAdmin: this._isAdmin,
-            shots: this.shots,
-            saves: this.saves,
-            passes: this.passes
-        }
-    }
-
     toString(): string {
         return `Goals: ${this._goals}\n` +
         `Assists: ${this.assists}\n` +
@@ -178,19 +157,6 @@ class Player {
         `Losses: ${this._losses}`
     }
 
-    saveStats() {
-        let statsObject: any = {}
-
-        const data: string = fs.readFileSync(statsPath, 'utf-8')
-        statsObject = JSON.parse(data)
-        statsObject[this.name] = this.serialize()
-        fs.writeFile(statsPath, JSON.stringify(statsObject, null, 2), (err) => {
-            if (err) {
-                Log.error(err.message);
-            }
-        })
-    }
-
     sendMessage(message: string, color?: number | undefined, style?: string | undefined, sound: number = 1, formatted: boolean = true) {
         const formattedMessage: string = formatted ? "[Server] " + message : message;
         this._room.sendAnnouncement(formattedMessage, this.id, color, style, sound)
@@ -199,6 +165,15 @@ class Player {
     kick(reason: string) {
         this._room.kickPlayer(this.id, reason, false);
     }
+
+    getStats(gameMode?: string): Promise<PlayerStats | null> {
+        return getPlayerStats(this, gameMode).then((res: PlayerStats) => {
+            return res;
+        }).catch(() => {
+            return null;
+        });
+    }
 }
 
 export default Player;
+export { PlayerSerialized, PlayerStats };

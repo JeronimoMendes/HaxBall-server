@@ -9,7 +9,7 @@ class CommandFactory {
     static createCommand(commandName: string, args: string[], invoker: Player, room: Room) {
         switch (commandName) {
             case "me":
-                return new MeCommand(invoker);
+                return new MeCommand(invoker, args);
             case "bb":
                 return new QuitCommand(invoker);
             case "about":

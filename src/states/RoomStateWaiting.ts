@@ -47,6 +47,10 @@ class RoomStateWaiting extends RoomState {
     getPitchDimensions(): PitchDimensions {
         return dimensions['1v1'];
     }
+
+    toString(): string {
+        return "waiting";
+    }
 }
 
 export default RoomStateWaiting;

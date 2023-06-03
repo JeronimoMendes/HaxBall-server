@@ -6,8 +6,9 @@ import { drawPlayersOnTeams, Log } from './utils'
 import { colors, kits, Kit } from './style'
 import RoomState from './states/RoomState';
 import RoomStateWaiting from './states/RoomStateWaiting';
-import { v4 as uuidv4 } from 'uuid';
 import { PitchDimensions } from "./states/stadiums";
+import Game from './Game';
+import { incrementAssists, incrementGoals, incrementOwnGoals, incrementWins, incrementLosses } from './db/db';
 
 
 class Room {
@@ -19,7 +20,7 @@ class Room {
     kicker: Player | null = null;
     winningTeam: Player[] = [];
     gameKicks: Kick[] = [];
-    currentGameID: string  = uuidv4();
+    currentGame: Game | null = null;
     currentBallot: Ballot | null = null;
 
     constructor(haxRoom: RoomObject) {
@@ -118,7 +119,6 @@ class Room {
 
     onPlayerLeave(leavingPlayer: Player): void {
         Log.info(leavingPlayer.name + " just left!");
-        leavingPlayer.saveStats();
         this.players = this.players.filter((player) => player.name != leavingPlayer.name);
         this.afkPlayers = this.afkPlayers.filter((player) => player.name != leavingPlayer.name);
         this.state.onPlayerLeave(leavingPlayer);
@@ -127,7 +127,9 @@ class Room {
     onPlayerKick(player: Player): void {
         this.previousKicker = player == this.kicker ? null : this.kicker;
         this.kicker = player;
-        const newKick = new Kick(player, this);
+        if (this.currentGame == null) return;
+        
+        const newKick = new Kick(player, this, this.currentGame.id);
         this.gameKicks.push(newKick);
     }
 
@@ -135,16 +137,17 @@ class Room {
         if (this.kicker == null) return;
 
         if (this.kicker.team == team) {
-            this.kicker.goals += 1;
+            incrementGoals(this.kicker, this.state.toString());
+
             if (this.gameKicks.length > 0)
                 this.gameKicks[this.gameKicks.length - 1].goal = true;
         } else {
-            this.kicker.ownGoals += 1;
+            incrementOwnGoals(this.kicker, this.state.toString());
         }
 
         if (this.previousKicker != null) {
             if (this.previousKicker.team == team) {
-                this.previousKicker.assists += 1;
+                incrementAssists(this.previousKicker, this.state.toString());
             }
         }
     }
@@ -153,17 +156,15 @@ class Room {
         this.winningTeam = this.players.filter((player) => player.team == winningTeam);
         const losingTeam: Player[] = this.players.filter((player) => player.team != winningTeam);
 
-        this.winningTeam.forEach((player) => player.wins += 1);
-        losingTeam.forEach((player) => player.losses += 1);
+        this.winningTeam.forEach((player) => incrementGoals(player, this.state.toString()));
+        losingTeam.forEach((player) => incrementOwnGoals(player, this.state.toString()));
 
-        this.state.saveGameKicks(this.gameKicksToCSV());
         this.gameKicks = [];
-
         this.state.onTeamVictory();
     }
 
     onGameStart(): void {
-        this.currentGameID = uuidv4();
+        this.currentGame = new Game(this.state.toString());
     }
 
     startGame(): void {
@@ -180,11 +181,11 @@ class Room {
 
     endGame(): void {
         Log.info("Ending game...")
+        if (this.currentGame == null) return;
         this.haxRoom.stopGame();
-        this.state.saveGameKicks(this.gameKicksToCSV());
 
-        // reset game kicks
         this.gameKicks = [];
+        this.currentGame.endGame();
     }
 
     shuffleTeams(): void {
@@ -199,14 +200,6 @@ class Room {
         if (player) return player;
 
         return this.afkPlayers.find((player) => player.name == name);
-    }
-
-    gameKicksToCSV(): string {
-        let csv = "";
-        this.gameKicks.forEach((kick) => {
-            csv += kick.toCSV() + "\n";
-        });
-        return csv;
     }
 
     sendAnnouncement(message: string, color?: number, style?: string, size?: number): void {

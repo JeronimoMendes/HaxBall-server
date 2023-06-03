@@ -3,6 +3,7 @@ import HaxballJS from "haxball.js";
 import dotenv from "dotenv";
 import Room from "./Room";
 import { createStatsDirectory } from "./utils";
+import { inDevelopment } from "./utils";
 
 // initialize stats directory if it doesn't exist
 createStatsDirectory();
@@ -19,6 +20,7 @@ HaxballJS.then((HBInit) => {
     public: true,
     noPlayer: true,
     token: TOKEN, // Required
+    ...(inDevelopment && { password: process.env.PASSWORD })
   });
 
   const room = new Room(roomHaxBall);

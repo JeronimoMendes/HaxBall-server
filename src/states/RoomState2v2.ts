@@ -60,6 +60,10 @@ class RoomState2v2 extends RoomState {
     getPitchDimensions(): PitchDimensions {
         return dimensions['2v2'];
     }
+
+    toString(): string {
+        return "2v2";
+    }
 }
 
 export default RoomState2v2;

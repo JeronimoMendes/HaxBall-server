@@ -18,6 +18,7 @@ abstract class RoomState {
     abstract onTeamVictory(): void;
     abstract onBallotResult(result: string): void;
     abstract getPitchDimensions(): PitchDimensions
+    abstract toString(): string;
 
     replaceLeavingPlayer(player: Player): void {
         const team = player.team;

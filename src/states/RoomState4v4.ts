@@ -44,6 +44,10 @@ class RoomState4v4 extends RoomState {
     getPitchDimensions(): PitchDimensions {
         return dimensions['4v4'];
     }
+
+    toString(): string {
+        return "4v4";
+    }
 }
 
 export default RoomState4v4;

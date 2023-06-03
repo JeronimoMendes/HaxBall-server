@@ -60,6 +60,10 @@ class RoomState3v3 extends RoomState {
     getPitchDimensions(): PitchDimensions {
         return dimensions['3v3'];
     }
+
+    toString(): string {
+        return "3v3";
+    }
 }
 
 export default RoomState3v3;
