@@ -37,7 +37,12 @@ class Room {
             let newPlayer = new Player(player, this.haxRoom);
             this.players.push(newPlayer);
             this.onPlayerJoin(newPlayer);
-            newPlayer.sendMessage("Welcome to the room! Type !help for a list of commands.", colors.red, "bold", 2);
+            newPlayer.sendMessage(
+                "Welcome to the room!\nJoin our discord server on https://discord.gg/PSS5Pc7PYf\nType !help for a list of commands.",
+                colors.red,
+                "bold",
+                2
+            );
         }
 
         this.haxRoom.onPlayerLeave = (player: PlayerObject) => {
