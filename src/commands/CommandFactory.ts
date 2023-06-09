@@ -16,7 +16,7 @@ class CommandFactory {
                 return new AboutCommand(invoker);
             case "help":
                 return new HelpCommand(invoker);
-            case "vote":
+            case "v":
                 if (room.currentBallot === null) {
                     invoker.sendMessage("There is no voting going on right now!");
                     return null;

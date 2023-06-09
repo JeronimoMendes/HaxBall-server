@@ -17,7 +17,7 @@ class HelpCommand extends Command {
     execute(): void {
         const message: string = "Available commands:\n" +
             "!me <game mode> - get your stats, leave game mode empty to list global stats\n" +
-            "!vote <choice>- vote for the current ballot\n" +
+            "!v <choice>- vote for the current ballot\n" +
             "!afk - toggle afk mode\n" +
             "!afks - list all afk players\n" +
             "!about - get info about this server\n" +

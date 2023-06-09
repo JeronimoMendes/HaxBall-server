@@ -37,7 +37,7 @@ class ChangeGameModeBallot extends Ballot {
         );
 
         this._room.sendAnnouncement(
-            `Use !vote ${this._gameMode1} or !vote ${this._gameMode2} to cast your vote`,
+            `Use !v ${this._gameMode1} or !v ${this._gameMode2} to cast your vote`,
             colors.red,
             "bold",
             0
@@ -62,13 +62,26 @@ class ChangeGameModeBallot extends Ballot {
         admins.forEach(admin => {
             if (player !== admin) {
                 admin.sendMessage(
-                    `${player.name} voted for ${vote}\n${this._votes1} votes for ${this._gameMode1}\n${this._votes2} votes for ${this._gameMode2}`, 
+                    `${player.name} voted.`, 
                     colors.yellow
                 );
             }
+            this._room.sendAnnouncement(
+                `Someone voted.\n${this._votes1} votes for ${this._gameMode1}\n${this._votes2} votes for ${this._gameMode2}`,
+                colors.redSecondary,
+            )
+            this._room.players
+                .filter(player => !this._votes.has(player))
+                .forEach(player => {
+                    player.sendMessage(
+                        `Remember to cast your vote using !v ${this._gameMode1} or !v ${this._gameMode2}`,
+                        colors.red,
+                        "bold"
+                    )
+                });
         });
 
-        player.sendMessage("Your vote was registered as: " + vote);
+        player.sendMessage("Your vote was registered as: " + vote, colors.green, "bold");
 
         if (this._votes1 > this._room.players.length / 2 || this._votes2 > this._room.players.length / 2 || this._votes.size === this._room.players.length) {
             if (this._votes1 === this._votes2) { 
