@@ -1,14 +1,14 @@
-import Player from './Player'
-import Kick from './Kick';
 import CommandFactory from './commands/CommandFactory';
-import { Ballot } from './votes/ballot';
-import { drawPlayersOnTeams, Log } from './utils'
-import { colors, kits, Kit } from './style'
+import { incrementAssists, incrementGoals, incrementLosses, incrementOwnGoals, incrementWins } from './db/db';
+import Game from './Game';
+import Kick from './Kick';
+import Player from './Player';
 import RoomState from './states/RoomState';
 import RoomStateWaiting from './states/RoomStateWaiting';
 import { PitchDimensions } from "./states/stadiums";
-import Game from './Game';
-import { incrementAssists, incrementGoals, incrementOwnGoals, incrementWins, incrementLosses } from './db/db';
+import { colors, Kit, kits } from './style';
+import { drawPlayersOnTeams, Log } from './utils';
+import { Ballot } from './votes/ballot';
 
 
 class Room {
@@ -83,7 +83,7 @@ class Room {
             if (this.checkAssist()) {
                 this.haxRoom.sendAnnouncement(this.kicker.name + " scored! Assisted by " + this.previousKicker?.name, undefined, teamColor, "bold", 2)
             } else {
-            this.haxRoom.sendAnnouncement(this.kicker.name + " scored!", undefined, teamColor, "bold", 2);
+                this.haxRoom.sendAnnouncement(this.kicker.name + " scored!", undefined, teamColor, "bold", 2);
             }
 
             this.onTeamGoal(team);
@@ -155,7 +155,12 @@ class Room {
     }
 
     onTeamGoal(team: TeamID): void {
-        if (this.kicker == null) return;
+        if (this.kicker == null || this.currentGame == null) return;
+
+        if (team == 1)
+            this.currentGame.redGoals += 1;
+        else
+            this.currentGame.blueGoals += 1;
 
         if (this.kicker.team == team) {
             incrementGoals(this.kicker, this.state.toString());
@@ -177,10 +182,11 @@ class Room {
         this.winningTeam = this.players.filter((player) => player.team == winningTeam);
         const losingTeam: Player[] = this.players.filter((player) => player.team != winningTeam);
 
-        this.winningTeam.forEach((player) => incrementGoals(player, this.state.toString()));
-        losingTeam.forEach((player) => incrementOwnGoals(player, this.state.toString()));
+        this.winningTeam.forEach((player) => incrementWins(player, this.state.toString()));
+        losingTeam.forEach((player) => incrementLosses(player, this.state.toString()));
 
         this.gameKicks = [];
+        this.currentGame?.endGame();
         this.state.onTeamVictory();
     }
 
