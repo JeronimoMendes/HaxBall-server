@@ -120,6 +120,17 @@ class Room {
         this.haxRoom.onGameStart = () => {
             this.onGameStart();
         }
+
+        this.haxRoom.onPlayerTeamChange = (changedPlayer: PlayerObject, byPlayer: PlayerObject) => {
+            if (byPlayer == null) return;
+
+            const player = this.getPlayerByName(changedPlayer.name);
+            const admin = this.getPlayerByName(byPlayer.name);
+            const team = changedPlayer.team;
+            
+            if (admin && player)
+                this.onAdminMovePlayer(player, team);
+        }
     }
 
     onPlayerJoin(player: Player): void {
@@ -175,6 +186,10 @@ class Room {
 
     onGameStart(): void {
         this.currentGame = new Game(this.state.toString());
+    }
+
+    onAdminMovePlayer(player: Player, team: TeamID): void {
+        player.adminMoveTeam(team);
     }
 
     startGame(): void {

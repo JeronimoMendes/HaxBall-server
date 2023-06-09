@@ -99,6 +99,10 @@ class Player {
         this._room.setPlayerTeam(this.id, team)
     }
 
+    adminMoveTeam(team: number) {
+        this._team = team
+    }
+
     get position(): Position {
         return {
             x: this.haxPlayer.position.x,
