@@ -80,7 +80,12 @@ class Room {
             const teamColor = (team == 1) ? colors.red : colors.blue;
 
             if (this.kicker == null) return;
+            if (this.checkAssist()) {
+                this.haxRoom.sendAnnouncement(this.kicker.name + " scored! Assisted by " + this.previousKicker?.name, undefined, teamColor, "bold", 2)
+            } else {
             this.haxRoom.sendAnnouncement(this.kicker.name + " scored!", undefined, teamColor, "bold", 2);
+            }
+
             this.onTeamGoal(team);
         }
 
@@ -151,9 +156,9 @@ class Room {
         }
 
         if (this.previousKicker != null) {
-            if (this.previousKicker.team == team && this.previousKicker != this.kicker) {
+            if (this.checkAssist())
                 incrementAssists(this.previousKicker, this.state.toString());
-            }
+            
         }
     }
 
@@ -231,6 +236,10 @@ class Room {
 
     getPitchDimensions(): PitchDimensions {
         return this.state.getPitchDimensions();
+    }
+
+    checkAssist() {
+        return this.kicker?.team == this.previousKicker?.team && this.kicker != this.previousKicker;
     }
 };
 
