@@ -151,7 +151,7 @@ class Room {
         }
 
         if (this.previousKicker != null) {
-            if (this.previousKicker.team == team) {
+            if (this.previousKicker.team == team && this.previousKicker != this.kicker) {
                 incrementAssists(this.previousKicker, this.state.toString());
             }
         }
