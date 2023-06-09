@@ -1,6 +1,6 @@
 import { Position } from './Common';
-import { Log, inDevelopment } from './utils';
-import { getPlayer, createPlayer, getPlayerStats } from './db/db';
+import { createPlayer, getPlayer, getPlayerStats, updatePlayer } from './db/db';
+import { Log } from './utils';
 
 
 interface PlayerSerialized {
@@ -35,7 +35,7 @@ class Player {
     private _losses: number = 0
     private _team: number
     private _afk: boolean = false
-    muted: boolean = false
+    private _muted: boolean = false
     
     constructor(haxPlayer: PlayerObject, room: RoomObject) {
         this.id = haxPlayer.id
@@ -45,8 +45,9 @@ class Player {
 
         getPlayer(this.name).then((res: PlayerSerialized) => {
             Log.debug(`Player ${this.name} found in db`)
+            console.log(res)
             this.isAdmin = res.isAdmin
-            this.muted = res.muted
+            this._muted = res.muted
         }, () => {
             // create player in db
             Log.debug(`Player ${this.name} not found in db`)
@@ -148,6 +149,15 @@ class Player {
 
     get passesPerGame(): string {
         return (this.passes / this.totalGames).toFixed(2)
+    }
+
+    get muted(): boolean {
+        return this._muted
+    }
+
+    set muted(muted: boolean) {
+        this._muted = muted;
+        updatePlayer(this);
     }
 
     toString(): string {

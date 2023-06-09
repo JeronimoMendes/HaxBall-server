@@ -1,7 +1,7 @@
 import Player, { PlayerStats } from "../Player";
-import { Ballot } from "../votes/ballot";
 import Room from "../Room";
 import { Log } from "../utils";
+import { Ballot } from "../votes/ballot";
 
 abstract class Command {
     _invoker: Player
@@ -169,8 +169,12 @@ class MuteCommand extends Command {
             return;
         }
 
-        playerToMute.muted = true;
-        this._invoker.sendMessage("Player " + playerToMute.name + " is now muted!");
+        playerToMute.muted = !playerToMute.muted;
+        if (playerToMute.muted) {
+            this._invoker.sendMessage("Player " + playerToMute.name + " is now muted!");
+        } else {
+            this._invoker.sendMessage("Player " + playerToMute.name + " is now unmuted!");
+        }
     }
 }
 
@@ -208,13 +212,8 @@ class MutedCommand extends Command {
 }
 
 export {
-    MeCommand,
-    QuitCommand,
-    AboutCommand,
-    HelpCommand,
-    VoteCommand,
-    AFKCommand,
-    ListAFKCommand,
-    MuteCommand,
-    MutedCommand,
+    AFKCommand, AboutCommand,
+    HelpCommand, ListAFKCommand, MeCommand, MuteCommand,
+    MutedCommand, QuitCommand, VoteCommand
 };
+

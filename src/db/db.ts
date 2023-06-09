@@ -1,9 +1,9 @@
-import { Pool, PoolClient} from 'pg';
-import Player, { PlayerSerialized, PlayerStats } from '../Player';
-import Kick from '../Kick';
 import dotenv from 'dotenv';
+import { Pool, PoolClient } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
 import Game from '../Game';
+import Kick from '../Kick';
+import Player, { PlayerSerialized, PlayerStats } from '../Player';
 import { inDevelopment } from '../utils';
 
 dotenv.config();
@@ -82,9 +82,10 @@ async function updatePlayer(player: Player) {
 
     client.query(
         `UPDATE "Player" SET
-            is_admin = $1 
-        WHERE name = $2`,
-        [player.isAdmin, player.name]
+            is_admin = $1,
+            muted = $2
+        WHERE name = $3`,
+        [player.isAdmin, player.muted, player.name]
     )
 
     client.release();
@@ -379,20 +380,9 @@ async function getPlayerStats(player: Player, gameMode?: string): Promise<Player
 
 
 export {
-    createPlayer,
-    getPlayer,
-    updatePlayer,
-    createKick,
-    updateKick,
-    createGame,
-    updateGame,
-    incrementAssists,
-    incrementGoals,
-    incrementPasses,
+    createGame, createKick, createPlayer,
+    getPlayer, getPlayerStats, incrementAssists,
+    incrementGoals, incrementLosses, incrementOwnGoals, incrementPasses,
     incrementSaves,
-    incrementShots,
-    incrementOwnGoals,
-    incrementLosses,
-    incrementWins,
-    getPlayerStats,
-}
+    incrementShots, incrementWins, updateGame, updateKick, updatePlayer
+};
