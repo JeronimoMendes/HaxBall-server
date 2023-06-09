@@ -58,6 +58,7 @@ class ChangeGameModeBallot extends Ballot {
                 gameMode1: this._gameMode1,
                 gameMode2: this._gameMode2
             }));
+            return;
         }
 
         if (this._votes.has(player)) {
@@ -115,9 +116,8 @@ class ChangeGameModeBallot extends Ballot {
 
             const winner = this.determineWinner();
 
-            const nrWinnerVotes = winner === this._gameMode1 ? this._votes1 : this._votes2;
             this._room.sendAnnouncement(
-                translator.translate("voting winner gamemode", {gameMode: winner}),
+                translator.translate("voting won gamemode", {gameMode: winner}),
                 colors.red,
                 "bold",
                 0

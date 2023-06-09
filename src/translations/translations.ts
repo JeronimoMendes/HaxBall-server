@@ -73,7 +73,7 @@ const translations: Translation = {
         "en": "This server is programmed by @🍍Stilton#4932\nIt's main objective is to gather data and train a predictive xG model.\nFeel free to contribute at https://github.com/JeronimoMendes/HaxBall-server",
         "pt": "Este servidor foi programado por @🍍Stilton#4932\nO seu objetivo principal é recolher dados e treinar um modelo preditivo de xG.\nSente-te à vontade para contribuir em https://github.com/JeronimoMendes/HaxBall-server"
     },
-    "specify vote": {
+    "specify a vote": {
         "en": "Please specify a vote!",
         "pt": "Por favor especifica um voto!"
     },
@@ -145,7 +145,7 @@ const translations: Translation = {
         "en": "Someone voted.\nVotes for {gameMode1}: {votes1}\nVotes for {gameMode2}: {votes2}",
         "pt": "Alguém votou.\nVotos para {gameMode1}: {votes1}\nVotos para {gameMode2}: {votes2}"
     },
-    "remeber to cast vote": {
+    "remember to cast vote": {
         "en": "Remember to cast your vote using !v {gameMode1} or !v {gameMode2}",
         "pt": "Lembra-te de votar usando !v {gameMode1} ou !v {gameMode2}"
     },

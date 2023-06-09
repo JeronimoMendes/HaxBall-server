@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import { Log } from "../utils";
 import translations from "./translations";
 
 dotenv.config();
@@ -10,10 +11,20 @@ class Translator {
 	}
 
 	translate(message: string, variables: any = []) : string {
-		let formattedMessage = translations[message][this.language];
+		let formattedMessage;
+		try {
+			formattedMessage = translations[message][this.language];
+		} catch (error) {
+			Log.error(`Could not find translation for ${message}`);
+			return "Something went wrong.";
+		}
 
 		for (let variable in variables) {
-			formattedMessage = formattedMessage.replace(`{${variable}}`, variables[variable]);
+			try {
+				formattedMessage = formattedMessage.replace(`{${variable}}`, variables[variable]);
+			} catch (error) {
+				Log.error(`Could not replace variable ${variable} in message ${message}`);	
+			}
 		}
 
 		return formattedMessage;
