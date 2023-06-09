@@ -45,7 +45,6 @@ class Player {
 
         getPlayer(this.name).then((res: PlayerSerialized) => {
             Log.debug(`Player ${this.name} found in db`)
-            console.log(res)
             this.isAdmin = res.isAdmin
             this._muted = res.muted
         }, () => {

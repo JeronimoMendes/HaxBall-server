@@ -1,6 +1,7 @@
-import Room from "../Room";
 import Player from "../Player";
+import Room from "../Room";
 import { colors } from "../style";
+import translator from "../translations/translator";
 
 abstract class Ballot {
     _room: Room;
@@ -27,7 +28,10 @@ class ChangeGameModeBallot extends Ballot {
         super(room, callback);
         this._gameMode1 = gameMode1;
         this._gameMode2 = gameMode2;
-        this.initialMessage = `A voting will start to determine if we continue playing the current ${this._gameMode1} game or if we start a new ${this._gameMode2}`;
+        this.initialMessage = translator.translate("voting initial gamemode", {
+            gameMode1: gameMode1,
+            gameMode2: gameMode2
+        });
 
         this._room.sendAnnouncement(
             this.initialMessage,
@@ -37,7 +41,10 @@ class ChangeGameModeBallot extends Ballot {
         );
 
         this._room.sendAnnouncement(
-            `Use !v ${this._gameMode1} or !v ${this._gameMode2} to cast your vote`,
+            translator.translate("voting gamemode options", {
+                gameMode1: gameMode1,
+                gameMode2: gameMode2
+            }),
             colors.red,
             "bold",
             0
@@ -46,12 +53,15 @@ class ChangeGameModeBallot extends Ballot {
 
     castVote(player: Player, vote: string): void {
         if (vote !== this._gameMode1 && vote !== this._gameMode2) {
-            player.sendMessage("Invalid vote: " + vote);
-            player.sendMessage("Please vote for either " + this._gameMode1 + " or " + this._gameMode2);
+            player.sendMessage(translator.translate("invalid vote", { vote: vote }));
+            player.sendMessage(translator.translate("voting gamemode options", {
+                gameMode1: this._gameMode1,
+                gameMode2: this._gameMode2
+            }));
         }
 
         if (this._votes.has(player)) {
-            player.sendMessage("You have already voted for " + this._votes.get(player));
+            player.sendMessage(translator.translate("duplicate vote", { vote: this._votes.get(player)}));
             return;
         }
 
@@ -67,26 +77,34 @@ class ChangeGameModeBallot extends Ballot {
                 );
             }
             this._room.sendAnnouncement(
-                `Someone voted.\n${this._votes1} votes for ${this._gameMode1}\n${this._votes2} votes for ${this._gameMode2}`,
+                translator.translate("someone voted", {
+                    gameMode1: this._gameMode1,
+                    votes1: this._votes1,
+                    gameMode2: this._gameMode2,
+                    votes2: this._votes2  
+                }),
                 colors.redSecondary,
             )
             this._room.players
                 .filter(player => !this._votes.has(player))
                 .forEach(player => {
                     player.sendMessage(
-                        `Remember to cast your vote using !v ${this._gameMode1} or !v ${this._gameMode2}`,
+                        translator.translate("remember to cast vote", {
+                            gameMode1: this._gameMode1,
+                            gameMode2: this._gameMode2
+                        }),
                         colors.red,
                         "bold"
                     )
                 });
         });
 
-        player.sendMessage("Your vote was registered as: " + vote, colors.green, "bold");
+        player.sendMessage(translator.translate("vote registered", { vote: vote }), colors.green, "bold");
 
         if (this._votes1 > this._room.players.length / 2 || this._votes2 > this._room.players.length / 2 || this._votes.size === this._room.players.length) {
             if (this._votes1 === this._votes2) { 
                 this._room.sendAnnouncement(
-                    `The voting is over, but there was a tie, so we will continue playing the current ${this._gameMode1} game`,
+                    translator.translate("voting tie gamemode", {gameMode: this._gameMode1}),
                     colors.red,
                     "bold",
                     0
@@ -99,7 +117,7 @@ class ChangeGameModeBallot extends Ballot {
 
             const nrWinnerVotes = winner === this._gameMode1 ? this._votes1 : this._votes2;
             this._room.sendAnnouncement(
-                `The voting is over, the winner is ${winner} with ${nrWinnerVotes} votes`,
+                translator.translate("voting winner gamemode", {gameMode: winner}),
                 colors.red,
                 "bold",
                 0
@@ -118,5 +136,5 @@ class ChangeGameModeBallot extends Ballot {
 
 export {
     Ballot,
-    ChangeGameModeBallot,
+    ChangeGameModeBallot
 };

@@ -1,5 +1,6 @@
 import Player, { PlayerStats } from "../Player";
 import Room from "../Room";
+import translator from "../translations/translator";
 import { Log } from "../utils";
 import { Ballot } from "../votes/ballot";
 
@@ -15,15 +16,7 @@ abstract class Command {
 
 class HelpCommand extends Command {
     execute(): void {
-        const message: string = "Available commands:\n" +
-            "!me <game mode> - get your stats, leave game mode empty to list global stats\n" +
-            "!v <choice>- vote for the current ballot\n" +
-            "!afk - toggle afk mode\n" +
-            "!afks - list all afk players\n" +
-            "!about - get info about this server\n" +
-            "!bb - quit the game\n" +
-            "!help - get this message";
-        this._invoker.sendMessage(message);
+        this._invoker.sendMessage(translator.translate("help message"));
     }
 }
 
@@ -37,7 +30,7 @@ class MeCommand extends Command {
     execute(): void {
         // get stats from player
         if (this._args.length > 1) {
-            this._invoker.sendMessage("Please specify only one game mode!");
+            this._invoker.sendMessage(translator.translate("specify only one game mode"));
             return;
         }
 
@@ -45,20 +38,23 @@ class MeCommand extends Command {
             .then((stats: PlayerStats | null) => {
                 if (stats === null) {
                     Log.error(`Could not get stats for ${this._invoker.name}`);
-                    this._invoker.sendMessage("Could not get stats for this player!");
+                    this._invoker.sendMessage(translator.translate("no stats for player"));
                     return;
                 }
 
-                let formattedMessage: string = this._args[0] ? `Your stats for ${this._args[0]}:\n` : `Your global stats:\n`;
+                let formattedMessage: string = this._args[0] ? translator.translate("stats for game mode", { gameMode: this._args[0] }) : translator.translate("stats global");
                 const totalGames: number = stats.wins + stats.losses;
-                formattedMessage += `Goals: ${stats.goals}\n` +
-                `Assists: ${stats.assists}\n` +
-                `Own Goals: ${stats.ownGoals}\n` +
-                `Shot p/ game: ${(stats.shots / totalGames).toPrecision(2)}\n` +
-                `Saves p/ game: ${(stats.saves / totalGames).toPrecision(2)}\n` +
-                `Passes p/ game: ${(stats.passes / totalGames).toPrecision(2)}\n` +
-                `Wins: ${stats.wins}\n` +
-                `Losses: ${stats.losses}`
+                formattedMessage += translator.translate("stats", {
+                    goals: stats.goals,
+                    assists: stats.assists,
+                    ownGoals: stats.ownGoals,
+                    shotsPerGame: (stats.shots / totalGames).toPrecision(2),
+                    savesPerGame: (stats.saves / totalGames).toPrecision(2),
+                    passesPerGame: (stats.passes / totalGames).toPrecision(2),
+                    wins: stats.wins,
+                    losses: stats.losses
+                })
+
 
                 this._invoker.sendMessage(formattedMessage);
             })
@@ -67,14 +63,13 @@ class MeCommand extends Command {
 
 class QuitCommand extends Command {
     execute(): void {
-        this._invoker.kick("Goodbye!");
+        this._invoker.kick(translator.translate("quit message"));
     }
 }
 
 class AboutCommand extends Command {
     execute(): void {
-        const message: string = "This server is programmed by @🍍Stilton#4932\nIt's main objective is to gather data and train a predictive xG model.\nFeel free to contribute at https://github.com/JeronimoMendes/HaxBall-server"
-        this._invoker.sendMessage(message);
+        this._invoker.sendMessage(translator.translate("about message"));
     }
 }
 
@@ -91,12 +86,12 @@ class VoteCommand extends Command {
 
     execute(): void {
         if (this._args.length == 0) {
-            this._invoker.sendMessage("Please specify your vote!");
+            this._invoker.sendMessage(translator.translate("specify a vote"));
             return;
         }
 
         if (this._args.length > 1) {
-            this._invoker.sendMessage("Please specify only one vote!");
+            this._invoker.sendMessage(translator.translate("specify only one vote"));
             return;
         }
 
@@ -115,10 +110,10 @@ class AFKCommand extends Command {
     execute(): void {
         if (this._invoker.afk === true) {
             this._room.setPlayerActive(this._invoker);
-            this._invoker.sendMessage("You are no longer AFK!");
+            this._invoker.sendMessage(translator.translate("afk on"));
         } else {
             this._room.setPlayerAFK(this._invoker)
-            this._invoker.sendMessage("You are now AFK!");
+            this._invoker.sendMessage(translator.translate("afk off"));
         }
     }
 }
@@ -133,11 +128,11 @@ class ListAFKCommand extends Command {
 
     execute(): void {
         if (this._room.afkPlayers.length === 0) {
-            this._invoker.sendMessage("There are no AFK players!");
+            this._invoker.sendMessage(translator.translate("afk list empty"));
             return;
         }
 
-        let message: string = "AFK players:\n";
+        let message: string = translator.translate("afk list");
         this._room.afkPlayers.forEach((player: Player) => {
             message += player.name + "\n";
         });
@@ -157,7 +152,7 @@ class MuteCommand extends Command {
 
     execute(): void {
         if (!this._invoker.isAdmin) {
-            this._invoker.sendMessage("You are not an admin!");
+            this._invoker.sendMessage(translator.translate("not admin"));
             return;
         }
 
@@ -165,15 +160,15 @@ class MuteCommand extends Command {
         const playerToMute: Player | undefined = this._room.getPlayerByName(playerNameToMute);
 
         if (playerToMute === undefined) {
-            this._invoker.sendMessage("Player not found!");
+            this._invoker.sendMessage(translator.translate("player not found"));
             return;
         }
 
         playerToMute.muted = !playerToMute.muted;
         if (playerToMute.muted) {
-            this._invoker.sendMessage("Player " + playerToMute.name + " is now muted!");
+            this._invoker.sendMessage(translator.translate("player muted", { player: playerToMute.name }));
         } else {
-            this._invoker.sendMessage("Player " + playerToMute.name + " is now unmuted!");
+            this._invoker.sendMessage(translator.translate("player unmuted", { player: playerToMute.name }));
         }
     }
 }
@@ -189,7 +184,7 @@ class MutedCommand extends Command {
 
     execute(): void {
         if (!this._invoker.isAdmin) {
-            this._invoker.sendMessage("You are not an admin!");
+            this._invoker.sendMessage(translator.translate("not admin"));
             return;
         }
 
@@ -198,11 +193,11 @@ class MutedCommand extends Command {
         });
 
         if (mutedPlayers.length === 0) {    
-            this._invoker.sendMessage("There are no muted players!");
+            this._invoker.sendMessage(translator.translate("muted list empty"));
             return;
         }
 
-        let message: string = "Muted players:\n";
+        let message: string = translator.translate("muted list");
         mutedPlayers.forEach((player: Player) => {
             message += player.name + "\n";
         });

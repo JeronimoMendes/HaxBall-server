@@ -1,6 +1,7 @@
-import { MeCommand, QuitCommand, AboutCommand, HelpCommand, VoteCommand, AFKCommand, ListAFKCommand, MuteCommand, MutedCommand } from "./Command";
 import Player from "../Player";
 import Room from "../Room";
+import translator from "../translations/translator";
+import { AFKCommand, AboutCommand, HelpCommand, ListAFKCommand, MeCommand, MuteCommand, MutedCommand, QuitCommand, VoteCommand } from "./Command";
 
 class CommandFactory {
     constructor(room: Room) {
@@ -18,7 +19,7 @@ class CommandFactory {
                 return new HelpCommand(invoker);
             case "v":
                 if (room.currentBallot === null) {
-                    invoker.sendMessage("There is no voting going on right now!");
+                    invoker.sendMessage(translator.translate("no voting"));
                     return null;
                 }
                 return new VoteCommand(invoker, args, room.currentBallot);

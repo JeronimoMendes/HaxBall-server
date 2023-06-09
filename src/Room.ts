@@ -1,13 +1,14 @@
-import CommandFactory from './commands/CommandFactory';
-import { incrementAssists, incrementGoals, incrementLosses, incrementOwnGoals, incrementWins } from './db/db';
 import Game from './Game';
 import Kick from './Kick';
 import Player from './Player';
+import CommandFactory from './commands/CommandFactory';
+import { incrementAssists, incrementGoals, incrementLosses, incrementOwnGoals, incrementWins } from './db/db';
 import RoomState from './states/RoomState';
 import RoomStateWaiting from './states/RoomStateWaiting';
 import { PitchDimensions } from "./states/stadiums";
-import { colors, Kit, kits } from './style';
-import { drawPlayersOnTeams, Log } from './utils';
+import { Kit, colors, kits } from './style';
+import translator from './translations/translator';
+import { Log, drawPlayersOnTeams } from './utils';
 import { Ballot } from './votes/ballot';
 
 
@@ -38,7 +39,7 @@ class Room {
             this.players.push(newPlayer);
             this.onPlayerJoin(newPlayer);
             newPlayer.sendMessage(
-                "Welcome to the room!\nJoin our discord server on https://discord.gg/PSS5Pc7PYf\nType !help for a list of commands.",
+                translator.translate("welcome message"),
                 colors.red,
                 "bold",
                 2
@@ -105,7 +106,7 @@ class Room {
                 if (command) {
                     command.execute();
                 } else {
-                    player.sendMessage("Unknown command!");
+                    player.sendMessage(translator.translate("unknown command"), colors.red, "bold", 2);
                 }
                 return false;
             }

@@ -1,7 +1,8 @@
-import Room from "../Room";
 import Player from "../Player";
-import { loadMap } from "../utils";
+import Room from "../Room";
 import { colors } from "../style";
+import translator from "../translations/translator";
+import { loadMap } from "../utils";
 import { ChangeGameModeBallot } from "../votes/ballot";
 import { PitchDimensions } from "./stadiums";
 
@@ -31,7 +32,10 @@ abstract class RoomState {
                 randomWaitingPlayer.team = team;
 
                 this.room.haxRoom.sendAnnouncement(
-                    `Substituting ${player.name} for ${randomWaitingPlayer.name}`,
+                    translator.translate("substitution", {
+                        playerOut: player.name,
+                        playerIn: randomWaitingPlayer.name
+                    }),
                     undefined,
                     colors.green,
                     "bold",
