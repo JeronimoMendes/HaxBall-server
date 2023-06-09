@@ -67,7 +67,7 @@ class Kick {
     }
 
     checkPreviousKickIsPass(): void {
-        const timestampOffset = 2000;
+        const timestampOffset = 5000;
         const previousKick = this.room.gameKicks[this.room.gameKicks.length - 1];
         if (previousKick != null) {
             if (
