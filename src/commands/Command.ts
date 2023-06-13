@@ -16,7 +16,7 @@ abstract class Command {
 
 class HelpCommand extends Command {
     execute(): void {
-        this._invoker.sendMessage(translator.translate("help mssage"));
+        this._invoker.sendMessage(translator.translate("help message"));
     }
 }
 
