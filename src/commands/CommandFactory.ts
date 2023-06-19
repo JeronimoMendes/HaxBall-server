@@ -46,7 +46,7 @@ class CommandFactory {
             case "mvp":
                 return new MVPCommand(invoker);
             case "discord":
-                return DiscordCommand(invoker, room);
+                return new DiscordCommand(invoker, room);
             default:
                 return null;
         }
