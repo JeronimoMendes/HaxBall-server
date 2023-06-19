@@ -206,9 +206,15 @@ class MutedCommand extends Command {
     }
 }
 
+class MVPCommand extends Command {
+    execute(): void {
+        this._invoker.sendMessage(translator.translate("mvp command"));
+    }
+}
+
 export {
     AFKCommand, AboutCommand,
-    HelpCommand, ListAFKCommand, MeCommand, MuteCommand,
+    HelpCommand, ListAFKCommand, MVPCommand, MeCommand, MuteCommand,
     MutedCommand, QuitCommand, VoteCommand
 };
 

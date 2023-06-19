@@ -165,6 +165,24 @@ const translations: Translation = {
         "en": "Substitution: {playerOut} out, {playerIn} in",
         "pt": "Substituição: {playerOut} sai, {playerIn} entra"
     },
+    "mvp": {
+        "en": "The MVP of the game was {player} with {points} points.\nUse !mvp to check pointing system",
+        "pt": "O MVP do jogo foi {player} com {points} pontos.\nUsa !mvp para veres o sistema de pontuação"
+    },
+    "mvp command": {
+        "en": "The MVP of the game is the player with the most points.\nPoints are awarded as follows:\n" +
+            "Goal: 8 point\n" +
+            "Assist: 4 point\n" +
+            "Saves: 3 point\n" +
+            "Passes: 2 point\n" +
+            "Own goal: -5 point\n",
+        "pt": "O MVP do jogo é o jogador com mais pontos.\nOs pontos são atribuídos da seguinte forma:\n" +
+            "Golo: 8 pontos\n" +
+            "Assistência: 4 pontos\n" +
+            "Defesas: 3 pontos\n" +
+            "Passes: 2 pontos\n" +
+            "Auto-golo: -5 pontos\n"
+    }
 }
 
 export default translations;

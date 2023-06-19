@@ -168,14 +168,14 @@ class Room {
 
             if (this.gameKicks.length > 0)
                 this.gameKicks[this.gameKicks.length - 1].goal = true;
+
+            if (this.previousKicker != null) {
+                if (this.checkAssist())
+                    incrementAssists(this.previousKicker, this.state.toString());
+            }
         } else {
             incrementOwnGoals(this.kicker, this.state.toString());
-        }
-
-        if (this.previousKicker != null) {
-            if (this.checkAssist())
-                incrementAssists(this.previousKicker, this.state.toString());
-            
+            this.kicker.ownGoals++;
         }
     }
 
@@ -193,6 +193,21 @@ class Room {
 
     onGameStart(): void {
         this.currentGame = new Game(this.state.toString());
+
+        // determine MVP
+        const mvp = this.players.reduce((prev, current) => {
+            return (prev.gamePoints() > current.gamePoints()) ? prev : current
+        });
+
+        if (mvp != null) {
+            this.sendAnnouncement(translator.translate("mvp", {
+                "player": mvp.name,
+                "points": mvp.gamePoints()
+            }), colors.yellow, "bold", 2);
+        }
+
+        this.players.forEach((player) => player.resetGameStats());
+        this.afkPlayers.forEach((player) => player.resetGameStats());
     }
 
     onAdminMovePlayer(player: Player, team: TeamID): void {

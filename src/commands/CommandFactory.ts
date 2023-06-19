@@ -1,7 +1,18 @@
 import Player from "../Player";
 import Room from "../Room";
 import translator from "../translations/translator";
-import { AFKCommand, AboutCommand, HelpCommand, ListAFKCommand, MeCommand, MuteCommand, MutedCommand, QuitCommand, VoteCommand } from "./Command";
+import {
+    AFKCommand,
+    AboutCommand,
+    HelpCommand,
+    ListAFKCommand,
+    MVPCommand,
+    MeCommand,
+    MuteCommand,
+    MutedCommand,
+    QuitCommand,
+    VoteCommand
+} from "./Command";
 
 class CommandFactory {
     constructor(room: Room) {
@@ -31,6 +42,8 @@ class CommandFactory {
                 return new MuteCommand(invoker, room, args);
             case "muted":
                 return new MutedCommand(invoker, room);
+            case "mvp":
+                return new MVPCommand(invoker);
             default:
                 return null;
         }

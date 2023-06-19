@@ -1,10 +1,9 @@
-import Player from "./Player";
-import Room from "./Room";
+import { v4 as uuidv4 } from "uuid";
 import Ball from "./Ball";
 import { Position, PositionBall, Velocity, crossProduct } from "./Common";
+import Player from "./Player";
+import Room from "./Room";
 import { createKick, incrementPasses, incrementSaves, incrementShots, updateKick } from "./db/db";
-import { v4 as uuidv4 } from "uuid";
-import { Log } from "./utils";
 
 
 type KickType = "kickoff" | "pass" | "shot" | "defense" | "defense + pass" | "normal";
@@ -49,7 +48,13 @@ class Kick {
 
     set goal(value: boolean) {
         this._goal = value;
-        Log.debug(`Goal: ${value}`);
+        if (value) {
+            this.kicker.goals++;
+            const previousKick = this.room.gameKicks[this.room.gameKicks.length - 1];
+            if (previousKick != null) {
+                previousKick.kicker.assists++;
+            }
+        }
         updateKick(this);
     }
 
@@ -77,8 +82,11 @@ class Kick {
             ) {
                 if (previousKick.type == "defense") {
                     previousKick.type = "defense + pass";
+                    previousKick.kicker.passes++;
+                    previousKick.kicker.saves++;
                 } else {
                     previousKick.type = "pass";
+                    previousKick.kicker.passes++;
                 }
 
                 incrementPasses(previousKick.kicker, this.room.state.toString());
@@ -131,6 +139,7 @@ class Kick {
             crossProduct(vectorBallBottomPost, this.ballVelocity) * crossProduct(vectorBallBottomPost, vectorBallTopPost) >= 0
         ) {
             this.type = "shot";
+            this.kicker.shots++;
             incrementShots(this.kicker, this.room.state.toString());
         }
     }
@@ -154,6 +163,7 @@ class Kick {
             this.kickerInsidePenaltyBox()
         ) {
             this.type = "defense";
+            this.kicker.saves++;
             incrementSaves(this.kicker, this.room.state.toString());
         }
     }

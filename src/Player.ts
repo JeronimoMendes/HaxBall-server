@@ -25,7 +25,7 @@ class Player {
     id: number
     name: string
     private _isAdmin: boolean = false
-    private _goals: number = 0
+    goals: number = 0
     assists: number = 0
     shots: number = 0
     saves: number = 0
@@ -56,14 +56,6 @@ class Player {
 
     get haxPlayer(): PlayerObject {
         return this._room.getPlayer(this.id)
-    }
-
-    get goals(): number {
-        return this._goals
-    }
-
-    set goals(goals: number) {
-        this._goals = goals
     }
 
     get ownGoals(): number {
@@ -159,15 +151,25 @@ class Player {
         updatePlayer(this);
     }
 
-    toString(): string {
-        return `Goals: ${this._goals}\n` +
-        `Assists: ${this.assists}\n` +
-        `Own Goals: ${this._ownGoals}\n` + 
-        `Shot p/ game: ${this.shotsPerGame}\n` + 
-        `Saves p/ game: ${this.savesPerGame}\n` + 
-        `Passes p/ game: ${this.passesPerGame}\n` +
-        `Wins: ${this._wins}\n` + 
-        `Losses: ${this._losses}`
+    gamePoints(): number {
+        let points = 0;
+
+        points += this.goals * 8;
+        points += this.assists * 4;
+        points += this.saves * 3;
+        points += this.passes * 2;
+        points -= this.ownGoals * 5;
+
+        return points;
+    }
+
+    resetGameStats() {
+        this.goals = 0
+        this.assists = 0
+        this.shots = 0
+        this.saves = 0
+        this.passes = 0
+        this.ownGoals = 0
     }
 
     sendMessage(message: string, color?: number | undefined, style?: string | undefined, sound: number = 1, formatted: boolean = true) {
