@@ -16,6 +16,7 @@ const translations: Translation = {
     "help message": {
         "en": "Available commands:\n" +
         "!me <game mode> - get your stats, leave game mode empty to list global stats\n" +
+        "!mvp - get info about the points system\n" +
         "!v <choice>- vote for the current ballot\n" +
         "!afk - toggle afk mode\n" +
         "!afks - list all afk players\n" +
@@ -24,6 +25,7 @@ const translations: Translation = {
         "!help - get this message",
         "pt": "Comandos disponíveis:\n" +
         "!me <modo de jogo> - vê as tuas estatísticas, deixa o modo de jogo vazio para veres as estatísticas globais\n" +
+        "!mvp - vê informação sobre o sistema de pontos\n" +
         "!v <escolha>- vota na votação atual\n" +
         "!afk - ativa/desativa o modo afk\n" +
         "!afks - lista todos os jogadores afk\n" +
