@@ -199,7 +199,7 @@ class Room {
             return (prev.gamePoints() > current.gamePoints()) ? prev : current
         });
 
-        if (mvp != null) {
+        if (mvp != null && mvp.gamePoints() > 0) {
             this.sendAnnouncement(translator.translate("mvp", {
                 "player": mvp.name,
                 "points": mvp.gamePoints()
