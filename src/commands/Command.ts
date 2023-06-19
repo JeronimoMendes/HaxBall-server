@@ -1,5 +1,6 @@
 import Player, { PlayerStats } from "../Player";
 import Room from "../Room";
+import { colors } from "../style";
 import translator from "../translations/translator";
 import { Log } from "../utils";
 import { Ballot } from "../votes/ballot";
@@ -212,9 +213,25 @@ class MVPCommand extends Command {
     }
 }
 
-export {
-    AFKCommand, AboutCommand,
-    HelpCommand, ListAFKCommand, MVPCommand, MeCommand, MuteCommand,
+class DiscordCommand extends Command {
+    _room: Room
+
+    constructor(invoker: Player, room: Room) {
+        super(invoker);
+        this._room = room;
+    }
+
+    execute(): void {
+        const message = translator.translate("discord invite");
+        if (this._invoker.isAdmin)
+            this._room.sendAnnouncement(message, colors.yellow, "bold", 2);
+        else 
+            this._invoker.sendMessage(message);
+    }
+}
+
+    export {
+    AFKCommand, AboutCommand, DiscordCommand, HelpCommand, ListAFKCommand, MVPCommand, MeCommand, MuteCommand,
     MutedCommand, QuitCommand, VoteCommand
 };
 

@@ -7,7 +7,7 @@ interface Translation {
 const translations: Translation = {
     "welcome message": {
         "en": "Welcome to the room!\nJoin our discord server on https://discord.gg/PSS5Pc7PYf\nType !help for a list of commands.",
-        "pt": "Bem-vindo à sala!\nEntra no nosso servidor do discord https://discord.gg/PSS5Pc7PYf\nDigita !help para uma lista de comandos."
+        "pt": "Bem-vindo à sala!\nVê as tuas estatísticas no nosso discord https://discord.gg/PSS5Pc7PYf\nDigita !help para uma lista de comandos."
     },
     "unknown command": {
         "en": "Unknown command. Type !help for a list of commands.",
@@ -68,12 +68,18 @@ const translations: Translation = {
         "pt": "As tuas estatísticas para {gameMode}:\n"
     },
     "quit message": {
-        "en": "Goodbye!",
-        "pt": "Até à próxima!"
+        "en": "Goodbye! Check out your stats on discord: https://discord.gg/PSS5Pc7PYf",
+        "pt": "Até à próxima! Vê as tuas estatísticas no discord: https://discord.gg/PSS5Pc7PYf"
     },
     "about message": {
-        "en": "This server is programmed by @🍍Stilton#4932\nIt's main objective is to gather data and train a predictive xG model.\nFeel free to contribute at https://github.com/JeronimoMendes/HaxBall-server",
-        "pt": "Este servidor foi programado por @🍍Stilton#4932\nO seu objetivo principal é recolher dados e treinar um modelo preditivo de xG.\nSente-te à vontade para contribuir em https://github.com/JeronimoMendes/HaxBall-server"
+        "en": "This server is programmed by @🍍Stilton#4932\n" + 
+            "It's main objective is to gather data and train a predictive xG model.\n" +
+            "Feel free to contribute at https://github.com/JeronimoMendes/HaxBall-server\n" + 
+            "Checkout detailed stats on discord: https://discord.gg/PSS5Pc7PYf",
+        "pt": "Este servidor foi programado por @🍍Stilton#4932\n" +
+            "O seu objetivo principal é recolher dados e treinar um modelo preditivo de xG.\n" +
+            "Sente-te à vontade para contribuir em https://github.com/JeronimoMendes/HaxBall-server\n" +
+            "Vê estatísticas detalhadas no discord: https://discord.gg/PSS5Pc7PYf"
     },
     "specify a vote": {
         "en": "Please specify a vote!",
@@ -184,6 +190,10 @@ const translations: Translation = {
             "Defesas: 3 pontos\n" +
             "Passes: 2 pontos\n" +
             "Auto-golo: -5 pontos\n"
+    },
+    "discord invite": {
+        "en": "Check more game statistics on our discord: https://discord.gg/PSS5Pc7PYf",
+        "pt": "Vê mais estatísticas no nosso discord: https://discord.gg/PSS5Pc7PYf"
     }
 }
 

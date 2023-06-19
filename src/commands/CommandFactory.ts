@@ -4,6 +4,7 @@ import translator from "../translations/translator";
 import {
     AFKCommand,
     AboutCommand,
+    DiscordCommand,
     HelpCommand,
     ListAFKCommand,
     MVPCommand,
@@ -44,6 +45,8 @@ class CommandFactory {
                 return new MutedCommand(invoker, room);
             case "mvp":
                 return new MVPCommand(invoker);
+            case "discord":
+                return DiscordCommand(invoker, room);
             default:
                 return null;
         }
