@@ -36,7 +36,9 @@ class Player {
     private _team: number
     private _afk: boolean = false
     private _muted: boolean = false
-    
+    lastActivityTimestamp: number = 0
+    lastAFKWarningTimestamp: number = 0
+
     constructor(haxPlayer: PlayerObject, room: RoomObject) {
         this.id = haxPlayer.id
         this.name = haxPlayer.name

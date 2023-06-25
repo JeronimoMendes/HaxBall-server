@@ -194,6 +194,10 @@ const translations: Translation = {
     "discord invite": {
         "en": "Check more game statistics on our discord: https://discord.gg/PSS5Pc7PYf",
         "pt": "Vê mais estatísticas no nosso discord: https://discord.gg/PSS5Pc7PYf"
+    },
+    "afk warning": {
+        "en": "You seem AFK. Move to avoid being kicked!",
+        "pt": "Pareces estar AFK. Mexe-te para evitar seres expulso!"
     }
 }
 

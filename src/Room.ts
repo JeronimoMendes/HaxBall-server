@@ -131,6 +131,17 @@ class Room {
             
             if (admin && player)
                 this.onAdminMovePlayer(player, team);
+        }, 
+
+        this.haxRoom.onPlayerActivity = (haxPlayer: PlayerObject) => {
+            const player = this.getPlayerByName(haxPlayer.name);
+            if (!player) return;
+
+            this.onPlayerActivity(player);
+        }
+         
+        this.haxRoom.onGameTick = () => {
+            this.onGameTick();
         }
     }
 
@@ -195,6 +206,7 @@ class Room {
         this.currentGame = new Game(this.state.toString());
 
         // determine MVP
+        if (this.players.length == 0) return;
         const mvp = this.players.reduce((prev, current) => {
             return (prev.gamePoints() > current.gamePoints()) ? prev : current
         });
@@ -221,6 +233,13 @@ class Room {
 
         // pause the game to give players time to get ready
         this.haxRoom.pauseGame(true);
+
+        const now = Date.now();
+        this.players.forEach((player) => {
+            player.lastActivityTimestamp = now;
+            player.lastAFKWarningTimestamp = now;
+        });
+
         // there's a small delay in-game when unpausing the game so there's no need 
         // to simulate a delay here
         this.haxRoom.pauseGame(false);
@@ -277,6 +296,31 @@ class Room {
 
     checkAssist() {
         return this.kicker?.team == this.previousKicker?.team && this.kicker != this.previousKicker;
+    }
+    
+    onPlayerActivity(player: Player) {
+        Log.debug("Player activity: " + player.name)
+        player.lastActivityTimestamp = Date.now();
+    }
+
+    onGameTick() {
+        const now = Date.now();
+        this.players.forEach((player) => {
+            if (player.afk || player.team === 0) {
+                Log.debug("Skipping player " + player.name + " because they are AFK or in the lobby");
+                return;
+            };
+
+            const secondsSinceLastActivity = (now - player.lastActivityTimestamp) / 1000;
+            const secondsSinceLastWarning = (now - player.lastAFKWarningTimestamp) / 1000;
+            
+            if (secondsSinceLastActivity > 10) {
+                this.setPlayerAFK(player);
+            } else if (secondsSinceLastActivity > 3 && secondsSinceLastWarning > 1) {
+                player.sendMessage(translator.translate("afk warning"), colors.yellow, "bold", 2);
+                player.lastAFKWarningTimestamp = now;
+            }
+        });
     }
 };
 
