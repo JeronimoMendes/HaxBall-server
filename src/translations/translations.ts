@@ -199,7 +199,7 @@ const translations: Translation = {
         "en": "You seem AFK. Move to avoid being kicked!",
         "pt": "Pareces estar AFK. Mexe-te para evitar seres expulso!"
     },
-    "afk enables": {
+    "afk enabled": {
         "en": "You are now AFK. Type !afk to disable it. You won't be drafted to any game while in AFK mode!",
         "pt": "Estás agora AFK. Escreve !afk para desativar. Não entrarás para nenhum jogo enquanto estiveres em modo AFK!"
     }
