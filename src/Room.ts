@@ -316,7 +316,8 @@ class Room {
             
             if (secondsSinceLastActivity > 10) {
                 this.setPlayerAFK(player);
-            } else if (secondsSinceLastActivity > 3 && secondsSinceLastWarning > 1) {
+                player.sendMessage(translator.translate("afk enabled"), colors.red, "bold", 2);
+            } else if (secondsSinceLastActivity > 6 && secondsSinceLastWarning > 1) {
                 player.sendMessage(translator.translate("afk warning"), colors.yellow, "bold", 2);
                 player.lastAFKWarningTimestamp = now;
             }
